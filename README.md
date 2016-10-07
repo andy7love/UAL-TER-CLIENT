@@ -34,10 +34,11 @@ Unmanned Aircraft Life - Terminal Client
 #### Miscellaneous
 + System restart/shutdown
 + Emergency cut-off engines
++ Emergency parachute
 + Basic camera/lights on/off commands
 
 #### Complete Manual Flight
-+ Basic direct-Joystick commands such as x,y,z and thottle control surfaces values.
++ --Basic direct-Joystick commands such as x,y,z and throttle control surfaces values.--
 
 #### Assisted Manual Flight
 + Advanced flight attitudes such as heading, roll, pitch and altitude values.
@@ -46,6 +47,6 @@ Unmanned Aircraft Life - Terminal Client
 + Emergency hover.
  
 #### Navigation Mode
-+ Navigation commands such as GoTo (lattitude/longitude/altittude).
-+ Navitation commands using waypoints.
++ Navigation commands such as GoTo (latitude/longitude/altitude).
++ Navigation commands using waypoints.
 + Follow command.
