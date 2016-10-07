@@ -50,3 +50,4 @@ Unmanned Aircraft Life - Terminal Client
 + Navigation commands such as GoTo (latitude/longitude/altitude).
 + Navigation commands using waypoints.
 + Follow command.
++ Back home.
