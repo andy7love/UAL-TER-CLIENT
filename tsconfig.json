@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+		"removeComments": true,
+		"noImplicitAny": false,
+		"sourceMap": true,
+		"baseUrl": "./bower_components",
+		"outFile": "bundle.js",
+		"target": "es5",
+		"module": "amd"
+  }
+}

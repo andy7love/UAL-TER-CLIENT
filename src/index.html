@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width">
+    <title>UAL-TER-CLIENT</title>
+    <link href="styles.css" rel="stylesheet" />
+</head>
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+    <div id="fps"></div>
+    <div id="notSupported" class="hidden">Sorry but your browser does not support WebGL...</div>
+    <script src="vendor/babylonjs/dist/babylon.2.4.js"></script>
+    <script src="vendor/requirejs/require.js"></script>
+    <script src="bundle.js"></script>
+    <script>
+        require(["App"], app => { 
+            var myApp = new app.App();
+        });
+    </script>
+</body>
+</html>

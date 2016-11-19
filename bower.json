@@ -1,0 +1,24 @@
+{
+  "name": "ual-ter-client",
+  "description": "Unmanned Aircraft Life - Terminal Client",
+  "main": "index.js",
+  "authors": [
+    "Andres Amor <amorsuar@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/andy7love/UAL-TER-CLIENT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "babylonjs": "^2.4.1",
+    "dat.gui": "dat-gui#^0.6.2",
+    "cannon.js": "^0.6.2",
+    "requirejs": "^2.3.2"
+  }
+}
