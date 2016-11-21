@@ -1,0 +1,5 @@
+{
+  "globalDependencies": {
+    "dat-gui": "registry:dt/dat-gui#0.5.0+20160317120654"
+  }
+}
