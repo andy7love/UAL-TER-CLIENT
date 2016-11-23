@@ -54,7 +54,6 @@ export class WebRTCConnection {
     private socket:SocketIOClient.Socket;
     private peerConnection: RTCPeerConnection;
     private isPeerConnectionStarted: boolean = false;
-    private isDroneConnected: boolean = false;
     private settings: WebRTCConnectionSettings;
 
     constructor(settings: WebRTCConnectionSettings) {
@@ -68,7 +67,10 @@ export class WebRTCConnection {
             this.closeConnection();
         });
         this.socket.on(WebRTCConnection.SignalingEvents.droneConnected, () => {
-            this.isDroneConnected = true;
+            if(this.isPeerConnectionStarted) {
+                // new drone! replace connection.
+                this.closeConnection();
+            }
             this.startPeerConnection();
         });
         this.socket.on(WebRTCConnection.SignalingEvents.messageToClient, (message) => {
@@ -108,7 +110,7 @@ export class WebRTCConnection {
     }
 
     private startPeerConnection(): void {
-        if (this.isDroneConnected && !this.isPeerConnectionStarted) {
+        if (!this.isPeerConnectionStarted) {
             this.createPeerConnection();
             this.isPeerConnectionStarted = true;
             this.peerConnection.createOffer((sessionDescription) => {
