@@ -18,7 +18,7 @@ export class InputManager {
 
 	private inputLoop() {
 		let gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
-		if (!gamepads) {
+		if (!gamepads || !gamepads[0]) {
 			return;
 		}
 		let joystick: Gamepad = gamepads[0];

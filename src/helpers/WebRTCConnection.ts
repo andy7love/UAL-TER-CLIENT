@@ -3,8 +3,10 @@
 
 interface WebRTCConnectionSettings {
     events: {
-        onReadyToSend: (ready: boolean) => void,
-        messageReceived: (data: string) => void
+        connected?: () => void,
+        disconnected?: () => void,
+        readyToSend?: (ready: boolean) => void,
+        messageReceived?: (data: string) => void
     }
 }
 
@@ -24,11 +26,10 @@ export class WebRTCConnection {
         clientConnect: 'client-connect',
         clientConnected: 'client-connected',
         droneConnected: 'drone-connected',
-        droneDisconnected: 'drone-disconnected',
         messageToClient: 'message-to-client',
         messageToDrone: 'message-to-drone'
     };
-    public static PeerMessages = {
+    public static SignalingPeerMessages = {
         answer: 'answer',
         candidate: 'candidate',
         disconnect: 'disconnect'
@@ -53,7 +54,6 @@ export class WebRTCConnection {
     private socket:SocketIOClient.Socket;
     private peerConnection: RTCPeerConnection;
     private isPeerConnectionStarted: boolean = false;
-    private isConnectedToPeerServer: boolean = false;
     private isDroneConnected: boolean = false;
     private settings: WebRTCConnectionSettings;
 
@@ -64,7 +64,8 @@ export class WebRTCConnection {
     public connect(): void {
         this.socket = io.connect(this.signalingServerURL);
         this.socket.on(WebRTCConnection.SignalingEvents.clientConnected, () => {
-            this.isConnectedToPeerServer = true;
+            console.log('Warning! another client was connected! I will not receive more signaling messages. Disconnecting...');
+            this.closeConnection();
         });
         this.socket.on(WebRTCConnection.SignalingEvents.droneConnected, () => {
             this.isDroneConnected = true;
@@ -74,13 +75,13 @@ export class WebRTCConnection {
             this.handleMessageToClient(message);
         });
         window.onbeforeunload = () => {
-            this.sendMessageToDrone(WebRTCConnection.PeerMessages.disconnect);
+            this.sendMessageToDrone(WebRTCConnection.SignalingPeerMessages.disconnect);
         };
         this.socket.emit(WebRTCConnection.SignalingEvents.clientConnect);
     }
 
     public disconnect() {
-        this.sendMessageToDrone(WebRTCConnection.PeerMessages.disconnect);
+        this.sendMessageToDrone(WebRTCConnection.SignalingPeerMessages.disconnect);
         this.closeConnection();
     }
 
@@ -93,15 +94,15 @@ export class WebRTCConnection {
             return;
         }
 
-        if (message.type === WebRTCConnection.PeerMessages.answer) {
+        if (message.type === WebRTCConnection.SignalingPeerMessages.answer) {
             this.peerConnection.setRemoteDescription(new RTCSessionDescription(message));
-        } else if (message.type === WebRTCConnection.PeerMessages.candidate) {
+        } else if (message.type === WebRTCConnection.SignalingPeerMessages.candidate) {
             var candidate = new RTCIceCandidate({
                 sdpMLineIndex: message.label,
                 candidate: message.candidate
             });
             this.peerConnection.addIceCandidate(candidate);
-        } else if (message === WebRTCConnection.PeerMessages.disconnect) {
+        } else if (message === WebRTCConnection.SignalingPeerMessages.disconnect) {
             this.disconnect();
         }
     }
@@ -113,6 +114,7 @@ export class WebRTCConnection {
             this.peerConnection.createOffer((sessionDescription) => {
                 this.peerConnection.setLocalDescription(sessionDescription);
                 this.sendMessageToDrone(sessionDescription);
+                this.settings.events.connected();
             }, (error) => {
                 console.log('createOffer() error: ', error);
             });
@@ -169,7 +171,7 @@ export class WebRTCConnection {
 
     private handleReliableChannelStateChange() {
         let readyToSend = this.isReadyToSend();
-        this.settings.events.onReadyToSend(readyToSend);
+        this.settings.events.readyToSend(readyToSend);
     }
 
     public isReadyToSend(): boolean {
@@ -206,5 +208,6 @@ export class WebRTCConnection {
         this.isPeerConnectionStarted = false;
         this.peerConnection.close();
         this.peerConnection = null;
+        this.settings.events.disconnected();
     }
 }
