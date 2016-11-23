@@ -18,6 +18,8 @@
   "dependencies": {
     "babylonjs": "^2.4.1",
     "dat.gui": "dat-gui#^0.6.2",
-    "requirejs": "^2.3.2"
+    "requirejs": "^2.3.2",
+    "webrtc-adapter": "^2.0.8",
+    "socket.io-client": "^1.6.0"
   }
 }
