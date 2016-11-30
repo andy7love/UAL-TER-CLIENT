@@ -3,10 +3,10 @@
 
 interface WebRTCConnectionSettings {
     events: {
-        connected?: () => void,
-        disconnected?: () => void,
-        readyToSend?: (ready: boolean) => void,
-        messageReceived?: (data: string) => void
+        connected: () => void,
+        disconnected: () => void,
+        readyToSend: (ready: boolean) => void,
+        messageReceived: (data: string) => void
     }
 }
 
@@ -50,7 +50,7 @@ export class WebRTCConnection {
             }
         }  
     };
-    private signalingServerURL: string = '//localhost:8080';
+    private signalingServerURL: string = 'http://localhost:8080';
     private socket:SocketIOClient.Socket;
     private peerConnection: RTCPeerConnection;
     private isPeerConnectionStarted: boolean = false;
@@ -68,12 +68,12 @@ export class WebRTCConnection {
         });
         this.socket.on(WebRTCConnection.SignalingEvents.droneConnected, () => {
             if(this.isPeerConnectionStarted) {
-                // new drone! replace connection.
+                console.log('new drone! replace connection.');
                 this.closeConnection();
             }
             this.startPeerConnection();
         });
-        this.socket.on(WebRTCConnection.SignalingEvents.messageToClient, (message) => {
+        this.socket.on(WebRTCConnection.SignalingEvents.messageToClient, (message: any) => {
             this.handleMessageToClient(message);
         });
         window.onbeforeunload = () => {
@@ -91,7 +91,7 @@ export class WebRTCConnection {
         this.socket.emit(WebRTCConnection.SignalingEvents.messageToDrone, message);
     }
 
-    private handleMessageToClient(message): void {
+    private handleMessageToClient(message: any): void {
         if(!this.isPeerConnectionStarted) {
             return;
         }
@@ -105,12 +105,13 @@ export class WebRTCConnection {
             });
             this.peerConnection.addIceCandidate(candidate);
         } else if (message === WebRTCConnection.SignalingPeerMessages.disconnect) {
-            this.disconnect();
+            this.closeConnection();
         }
     }
 
     private startPeerConnection(): void {
         if (!this.isPeerConnectionStarted) {
+            console.log('P2P: Connecting...');
             this.createPeerConnection();
             this.isPeerConnectionStarted = true;
             this.peerConnection.createOffer((sessionDescription) => {
@@ -118,7 +119,7 @@ export class WebRTCConnection {
                 this.sendMessageToDrone(sessionDescription);
                 this.settings.events.connected();
             }, (error) => {
-                console.log('createOffer() error: ', error);
+                console.log('createOffer() error: ', error.toString());
             });
         }
     }
@@ -181,7 +182,7 @@ export class WebRTCConnection {
             this.channels.reliable.channel.readyState === 'open');
     }
 
-    private handleIceCandidate(event) {
+    private handleIceCandidate(event: RTCIceCandidateEvent) {
         if (event.candidate) {
             this.sendMessageToDrone({
                 type: 'candidate',
@@ -207,6 +208,7 @@ export class WebRTCConnection {
     }
 
     private closeConnection() {
+        console.log('P2P: Closing connection...');
         this.isPeerConnectionStarted = false;
         this.peerConnection.close();
         this.peerConnection = null;
