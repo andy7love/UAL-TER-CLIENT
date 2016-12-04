@@ -143,6 +143,6 @@ export class GraphicsScene {
 		let orientation = this.state.simulation.orientation.getValue();
 
 		this.drone.position = position;
-		this.drone.rotation = orientation;
+		this.drone.rotationQuaternion = orientation;
 	}
 }
