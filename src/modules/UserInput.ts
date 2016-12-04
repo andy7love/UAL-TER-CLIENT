@@ -1,4 +1,4 @@
-import { ClientState } from "../states/ClientState";
+import { ClientState } from "states/ClientState";
 
 export class UserInput {
 	private state: ClientState;
@@ -21,7 +21,7 @@ export class UserInput {
 		if (gamepads && gamepads[0]) {
 			let joystick: Gamepad = gamepads[0];
 
-			this.state.joystickState.setValue({
+			this.state.joystick.setValue({
 				roll: this.roundAxis(joystick.axes[0]),
 				pitch:  this.roundAxis(joystick.axes[1]),
 				yaw: this.roundAxis(joystick.axes[5]),

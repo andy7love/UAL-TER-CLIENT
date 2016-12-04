@@ -1,5 +1,5 @@
 /// <reference path="../../bower_components/babylonjs/dist/babylon.2.4.d.ts" />
-import { ClientState } from "../states/ClientState";
+import { ClientState } from "states/ClientState";
 
 export class GraphicsScene {
 	private engine: BABYLON.Engine;
@@ -139,10 +139,10 @@ export class GraphicsScene {
 	}
 
 	public update(): void {
-		var joystickStateValue = this.state.joystickState.getValue();
-		this.drone.position.y += 0.1 * joystickStateValue.throttle;
-		this.drone.rotation.x += 0.1 * (joystickStateValue.roll)*-1;
-		this.drone.rotation.y += 0.1 * joystickStateValue.yaw;
-		this.drone.rotation.z += 0.1 * joystickStateValue.pitch;
+		let position = this.state.simulation.position.getValue();
+		let orientation = this.state.simulation.orientation.getValue();
+
+		this.drone.position = position;
+		this.drone.rotation = orientation;
 	}
 }

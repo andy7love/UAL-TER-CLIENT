@@ -1,4 +1,4 @@
-import { StateProperty } from "./StateProperty";
+import { StateProperty } from "helpers/StateProperty";
 
 interface JoystickStateValue {
 	yaw: number;

@@ -1,9 +1,15 @@
 import { JoystickState } from "./JoystickState";
+import { SimulationState } from "./SimulationState";
+import { CommunicationState } from "./CommunicationState";
 
 export class ClientState {
-	public joystickState: JoystickState;
+	public joystick: JoystickState;
+	public simulation: SimulationState;
+	public communication: CommunicationState;
 
 	constructor() {
-		this.joystickState = new JoystickState();
+		this.joystick = new JoystickState();
+		this.simulation = new SimulationState();
+		this.communication = new CommunicationState();
 	}
 }

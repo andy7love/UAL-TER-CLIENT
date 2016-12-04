@@ -193,7 +193,10 @@ export class WebRTCConnection {
         }
     }
 
-    public sendDataUsingReliableChannel(data: string) {
+    public sendDataUsingReliableChannel(data: any) {
+        if(typeof data !== 'string') {
+            data = JSON.stringify(data);
+        }
         if(this.isReadyToSend()) {
             this.channels.reliable.channel.send(data);
         } else {
@@ -201,7 +204,10 @@ export class WebRTCConnection {
         }
     }
 
-    public sendDataUsingFastChannel(data: string) {
+    public sendDataUsingFastChannel(data: any) {
+        if(typeof data !== 'string') {
+            data = JSON.stringify(data);
+        }
         if(this.isPeerConnectionStarted && this.channels.fast.channel.readyState === 'open') {
             this.channels.fast.channel.send(data);
         }

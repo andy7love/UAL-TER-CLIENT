@@ -1,5 +1,5 @@
 /// <reference path="../../typings/globals/dat-gui/index.d.ts" />
-import { ClientState } from "../states/ClientState";
+import { ClientState } from "states/ClientState";
 
 export class GUIPanel {
 	private gui: dat.GUI;
@@ -13,7 +13,7 @@ export class GUIPanel {
 
 	private createJoystickUI() : void {
 		let joystick = this.gui.addFolder('Joystick');
-		let joystickStateValue = this.state.joystickState.getValue();
+		let joystickStateValue = this.state.joystick.getValue();
 		let controllers: Array<dat.GUIController> = [];
 
 		controllers.push(joystick.add(joystickStateValue, 'roll', -1, 1).step(0.01));
@@ -22,7 +22,7 @@ export class GUIPanel {
 		controllers.push(joystick.add(joystickStateValue, 'throttle', -1, 1).step(0.01));
 		joystick.open();
 
-		this.state.joystickState
+		this.state.joystick
 			.getStream()
 			.changes()
 			.skipDuplicates()
