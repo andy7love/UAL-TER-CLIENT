@@ -35,12 +35,6 @@ export class Communication {
 	}
 
 	private configureStreaming() {
-		this.state.communication.connected.getStream().map((v) => {
-			return !v;
-		}).onValue((ready) => {
-			console.log(ready);
-		});
-
 		this.state.joystick.getStream()
 			.toEventStream()
 			.skipWhile(this.state.communication.connected.getStream().map(Utils.negate))
@@ -55,11 +49,14 @@ export class Communication {
 		try {
 			let data: any = JSON.parse(message);
 			if(data.simulation !== undefined) {
+				data.simulation.position = new BABYLON.Vector3(data.simulation.position.x, data.simulation.position.y, data.simulation.position.z);
+				data.simulation.orientation = new BABYLON.Quaternion(data.simulation.orientation.x, data.simulation.orientation.y, data.simulation.orientation.z, data.simulation.orientation.w);
+
 				this.state.simulation.position.setValue(data.simulation.position);
 				this.state.simulation.orientation.setValue(data.simulation.orientation);
 			}
 		} catch(e) {
-			console.log('Error! Failed to parse message from client');
+			console.error('Error! Failed to parse message from client: ', e);
 		}
 	}
 }

@@ -52,7 +52,7 @@ export class GraphicsScene {
 		this.light.intensity = 0.6;
 		this.light2.intensity = 0.6;
 
-		this.camera.setPosition(new BABYLON.Vector3(-20, 20, 0));
+		this.camera.setPosition(new BABYLON.Vector3(0, 20, -20));
 	}
 		
 	public setSkybox():void {
@@ -94,7 +94,7 @@ export class GraphicsScene {
 			});
 
 			// Asociate parent.
-			let parent = null;
+			let parent: BABYLON.Mesh = null;
 			t.loadedMeshes.slice(0, -4).forEach((m:BABYLON.Mesh) => {
 				this.droneParts.push(m);
 				if(parent == null) {
@@ -103,10 +103,17 @@ export class GraphicsScene {
 					m.parent = parent;
 				}
 			});
-			this.drone = parent;
+
+			// Set correct rotation.
+			parent.rotation.y = -Math.PI/2; 
 
 			// Scale
-			parent.scaling = new BABYLON.Vector3(0.05, 0.05, 0.05);
+			parent.scaling = new BABYLON.Vector3(0.02, 0.02, 0.02);
+
+			// Specific node for drone.
+			this.drone = new BABYLON.Mesh('drone-node', this.scene);
+			parent.parent = this.drone;
+			this.camera.parent = this.drone;
 		};
 	}
 
@@ -142,7 +149,7 @@ export class GraphicsScene {
 		let position = this.state.simulation.position.getValue();
 		let orientation = this.state.simulation.orientation.getValue();
 
-		this.drone.position = position;
+		this.drone.position = position.scale(10); // convert CANNON (m) to BABYLON
 		this.drone.rotationQuaternion = orientation;
 	}
 }
