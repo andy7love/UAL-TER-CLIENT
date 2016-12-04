@@ -1,6 +1,6 @@
 /// <reference path="../../bower_components/babylonjs/dist/babylon.2.4.d.ts" />
 
-export class EngineManager {
+export class GraphicsEngine {
     private engine: BABYLON.Engine;
     private scene: BABYLON.Scene;
     private canvas: HTMLCanvasElement;

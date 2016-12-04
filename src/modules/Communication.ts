@@ -1,12 +1,12 @@
 import { WebRTCConnection } from "helpers/WebRTCConnection";
-import { StateManager } from "managers/StateManager";
+import { ClientState } from "../states/ClientState";
 
-export class NetworkManager {
-	private stateManager: StateManager;
+export class Communication {
+	private state: ClientState;
 	private connection: WebRTCConnection;
 
-	constructor (stateMgr: StateManager) {
-		this.stateManager = stateMgr;
+	constructor (state: ClientState) {
+		this.state = state;
 
 		this.connection = new WebRTCConnection({
 			events: {

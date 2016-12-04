@@ -1,7 +1,7 @@
 /// <reference path="../../bower_components/babylonjs/dist/babylon.2.4.d.ts" />
-import { StateManager } from "managers/StateManager";
+import { ClientState } from "../states/ClientState";
 
-export class SceneManager {
+export class GraphicsScene {
 	private engine: BABYLON.Engine;
 	private scene: BABYLON.Scene;
 	private camera: BABYLON.ArcRotateCamera;
@@ -11,10 +11,10 @@ export class SceneManager {
 	private ground: BABYLON.Mesh;
 	private droneParts: Array<BABYLON.Mesh> = new Array();
 	private drone: BABYLON.Mesh;
-	private stateManager: StateManager;
+	private state: ClientState;
 
-	constructor (stateMgr: StateManager) {
-		this.stateManager = stateMgr;
+	constructor (state: ClientState) {
+		this.state = state;
 	}
 
 	public createScene(engine: BABYLON.Engine) : BABYLON.Scene {
@@ -139,9 +139,10 @@ export class SceneManager {
 	}
 
 	public update(): void {
-		this.drone.position.y += 0.1 * this.stateManager.joystickState.throttle;
-		this.drone.rotation.x += 0.1 * (this.stateManager.joystickState.roll)*-1;
-		this.drone.rotation.y += 0.1 * this.stateManager.joystickState.yaw;
-		this.drone.rotation.z += 0.1 * this.stateManager.joystickState.pitch;
+		var joystickStateValue = this.state.joystickState.getValue();
+		this.drone.position.y += 0.1 * joystickStateValue.throttle;
+		this.drone.rotation.x += 0.1 * (joystickStateValue.roll)*-1;
+		this.drone.rotation.y += 0.1 * joystickStateValue.yaw;
+		this.drone.rotation.z += 0.1 * joystickStateValue.pitch;
 	}
 }

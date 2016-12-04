@@ -1,20 +1,20 @@
-import { EngineManager } from "managers/EngineManager";
-import { SceneManager } from "managers/SceneManager";
-import { StateManager } from "managers/StateManager";
-import { InputManager } from "managers/InputManager";
-import { GUIManager } from "managers/GUIManager";
-import { NetworkManager } from "managers/NetworkManager";
+import { ClientState } from "states/ClientState";
+import { GraphicsEngine } from "modules/GraphicsEngine";
+import { GraphicsScene } from "modules/GraphicsScene";
+import { UserInput } from "modules/UserInput";
+import { GUIPanel } from "modules/GUIPanel";
+import { Communication } from "modules/Communication";
 
 export class App {
     constructor () {
-        let stateManager = new StateManager();
-        let networkManager = new NetworkManager(stateManager);
-        let guiManager = new GUIManager(stateManager);
-        let inputManager = new InputManager(stateManager);
-        let engineManager = new EngineManager();
-        let sceneManager = new SceneManager(stateManager);
-        engineManager.loadScene((engine) => {
-            return sceneManager.createScene(engine);
+        let clientState = new ClientState();
+        let communication = new Communication(clientState);
+        let guiPanel = new GUIPanel(clientState);
+        let userInput = new UserInput(clientState);
+        let graphicsEngine = new GraphicsEngine();
+        let graphicsScene = new GraphicsScene(clientState);
+        graphicsEngine.loadScene((engine) => {
+            return graphicsScene.createScene(engine);
         });
     }
 }
