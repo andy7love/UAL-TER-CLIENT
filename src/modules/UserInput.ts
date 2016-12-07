@@ -21,14 +21,45 @@ export class UserInput {
 		if (gamepads && gamepads[0]) {
 			let joystick: Gamepad = gamepads[0];
 
-			this.state.joystick.setValue({
-				roll: this.roundAxis(joystick.axes[0]),
-				pitch:  this.roundAxis(joystick.axes[1]),
-				yaw: this.roundAxis(joystick.axes[5]),
-				throttle: this.roundAxis((joystick.axes[6])*-1)
-			});
+			this.state.joystick.setValue(this.normalizeAction(joystick));
 		}
 		
 		requestAnimationFrame(this.inputLoop.bind(this));
+	}
+
+	private normalizeAction(joystick) {
+		let roll = joystick.axes[0],
+			pitch = joystick.axes[1],
+			yaw = joystick.axes[5],
+			throttle = -joystick.axes[6];
+
+		// throttle interval resize
+		throttle = (throttle + 1) / 2;
+
+		// Deadzone
+		if (Math.abs(roll) < .05) {
+			roll = 0;
+		}  
+		if (Math.abs(pitch) < .05) {
+			pitch = 0;
+		}  
+		if (Math.abs(yaw) < .05) {
+			yaw = 0;
+		}  
+		if (throttle < .05) {
+			throttle = 0;
+		}
+		
+		// Sensitivity curve x^3
+		roll = Math.pow(roll, 3);
+		pitch = Math.pow(pitch, 3);
+		yaw = Math.pow(yaw, 3);
+
+		return {
+			roll: this.roundAxis(roll),
+			pitch: this.roundAxis(pitch),
+			yaw: this.roundAxis(yaw),
+			throttle: this.roundAxis(throttle)
+		};
 	}
 }

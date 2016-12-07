@@ -12,6 +12,7 @@ export class GraphicsScene {
 	private droneParts: Array<BABYLON.Mesh> = new Array();
 	private drone: BABYLON.Mesh;
 	private state: ClientState;
+	private node: BABYLON.Mesh;
 
 	constructor (state: ClientState) {
 		this.state = state;
@@ -56,7 +57,7 @@ export class GraphicsScene {
 	}
 		
 	public setSkybox():void {
-		let skybox = BABYLON.Mesh.CreateBox("skyBox", 1000.0, this.scene);
+		let skybox = BABYLON.Mesh.CreateBox("skyBox", 100000.0, this.scene);
 		let skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
 		skyboxMaterial.backFaceCulling = false;
 		skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("resources/night", this.scene);
@@ -113,7 +114,10 @@ export class GraphicsScene {
 			// Specific node for drone.
 			this.drone = new BABYLON.Mesh('drone-node', this.scene);
 			parent.parent = this.drone;
-			this.camera.parent = this.drone;
+			this.node = new BABYLON.Mesh('pivoto', this.scene);
+			this.camera.parent = this.node;
+
+			//this.camera.parent = this.drone;
 		};
 	}
 
@@ -151,5 +155,9 @@ export class GraphicsScene {
 
 		this.drone.position = position.scale(10); // convert CANNON (m) to BABYLON
 		this.drone.rotationQuaternion = orientation;
+		this.node.position = this.drone.position;
+		var yaw = this.drone.rotationQuaternion.toEulerAngles().y;
+		this.node.rotationQuaternion = new BABYLON.Quaternion();
+		BABYLON.Quaternion.RotationYawPitchRollToRef(yaw, 0, 0, this.node.rotationQuaternion);
 	}
 }

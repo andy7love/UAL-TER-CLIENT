@@ -19,7 +19,7 @@ export class GUIPanel {
 		controllers.push(joystick.add(joystickStateValue, 'roll', -1, 1).step(0.01));
 		controllers.push(joystick.add(joystickStateValue, 'pitch', -1, 1).step(0.01));
         controllers.push(joystick.add(joystickStateValue, 'yaw', -1, 1).step(0.01));
-		controllers.push(joystick.add(joystickStateValue, 'throttle', -1, 1).step(0.01));
+		controllers.push(joystick.add(joystickStateValue, 'throttle', 0, 1).step(0.01));
 		joystick.open();
 
 		this.state.joystick
