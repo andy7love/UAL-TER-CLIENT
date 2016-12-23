@@ -19,12 +19,18 @@
   "homepage": "https://github.com/andy7love/UAL-TER-CLIENT#readme",
   "dependencies": {
     "bower": "^1.8.0",
+    "chalk": "^1.1.3",
     "express": "^4.14.0",
     "gulp": "^3.9.1",
     "gulp-copy": "0.0.2",
     "gulp-rimraf": "^0.2.1",
     "gulp-typescript": "^3.1.3",
+    "gulp-uglify": "^2.0.0",
+    "kalm": "^1.4.0",
+    "socket.io": "^1.7.2",
+    "socket.io-client": "^1.7.2",
     "typescript": "^2.0.10",
-    "typings": "^2.0.0"
+    "typings": "^2.0.0",
+    "wrtc": "0.0.61"
   }
 }
