@@ -61,7 +61,7 @@ export class WebRTCConnection {
     private webrtc: NodeWebRTC;
     private signalingServerURL: string = 'http://localhost:8080';
     private socket:SocketIOClient.Socket;
-    private peerConnection: RTCPeerConnection;
+    private peerConnection: RTCPeerConnection = null;
     private isPeerConnectionStarted: boolean = false;
     private settings: WebRTCConnectionSettings;
 
@@ -104,7 +104,9 @@ export class WebRTCConnection {
                     sdpMLineIndex: message.label,
                     candidate: message.candidate
                 });
-                this.peerConnection.addIceCandidate(candidate);
+                if(this.peerConnection) {
+                    this.peerConnection.addIceCandidate(candidate);
+                }
             } else if (message === WebRTCConnection.SignalingPeerMessages.disconnect) {
                 this.closeConnection();
             }
@@ -217,8 +219,12 @@ export class WebRTCConnection {
 
     private closeConnection() {
         this.isPeerConnectionStarted = false;
-        this.peerConnection.close();
-        this.peerConnection = null;
+        if(this.peerConnection !== null) {
+            this.peerConnection.close();
+            this.peerConnection = null;
+        }
+        this.socket.removeAllListeners();
+        this.socket.close();
         this.settings.events.disconnected();
     }
 }

@@ -216,8 +216,10 @@ export class WebRTCConnection {
     private closeConnection() {
         console.log('P2P: Closing connection...');
         this.isPeerConnectionStarted = false;
-        this.peerConnection.close();
-        this.peerConnection = null;
+        if(this.peerConnection !== null) {
+            this.peerConnection.close();
+            this.peerConnection = null;
+        }
         this.settings.events.disconnected();
     }
 }
