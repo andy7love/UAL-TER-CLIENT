@@ -14,7 +14,8 @@ interface WebRTCConnectionSettings {
         connected: () => void,
         disconnected: () => void,
         readyToSend: (ready: boolean) => void,
-        messageReceived: (data: string) => void
+        reliableMessageReceived: (data: string) => void
+        fastMessageReceived: (data: string) => void
     }
 }
 
@@ -164,16 +165,34 @@ export class WebRTCConnection {
         this.channels.fast.channel = newChannel;
     }
 
-    private handleIncomingChannels(event: RTCDataChannelEvent) {
-        let receiveChannel: RTCDataChannel = event.channel;
-        receiveChannel.onmessage = (event) => {
-            this.receiveMessage(event);
-        };
+    private handleIncomingChannels(event: any) {
+        let receiveChannel: any = event.channel;
+
+        switch(receiveChannel.label) {
+            case 'client-reliable-channel':
+                receiveChannel.onmessage = (event) => {
+                    this.receiveReliableMessage(event);
+                };
+                break;
+            case 'client-fast-channel':
+                receiveChannel.onmessage = (event) => {
+                    this.receiveFastMessage(event);
+                };
+                break;
+            default:
+                console.error('Unkown data channel label received. ', receiveChannel.label);
+                break;
+        }
     }
 
-    private receiveMessage(event: RTCMessageEvent) {
+    private receiveReliableMessage(event: RTCMessageEvent) {
         let data = event.data;
-        this.settings.events.messageReceived(data);
+        this.settings.events.reliableMessageReceived(data);
+    }
+
+    private receiveFastMessage(event: RTCMessageEvent) {
+        let data = event.data;
+        this.settings.events.fastMessageReceived(data);
     }
 
     private handleReliableChannelStateChange() {
@@ -204,7 +223,7 @@ export class WebRTCConnection {
         if(this.isReadyToSend()) {
             this.channels.reliable.channel.send(data);
         } else {
-            console.log('Warning! Reliable channel not ready to send data! - data lost');
+            console.warn('Reliable channel not ready to send data! - data lost');
         }
     }
 

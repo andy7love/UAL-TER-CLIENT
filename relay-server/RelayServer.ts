@@ -2,41 +2,39 @@ import { WebRTCConnection } from "./helpers/WebRTCConnection";
 const Kalm = require('kalm');
 
 export class RelayServer {
-	private webrtcConnection: WebRTCConnection;
+	private webrtcConnection: WebRTCConnection = null;
 	private isReliableChannelReady: boolean = false;
-	private isFastChannelReady: boolean = false;
 	private reconnectionTimeout: number = 1000; // ms.
-	private droneHostname: string = 'localhost';
+	private droneHostname: string = '127.0.0.1';
 	private tcpPort: number = 6000;
 	private udpPort: number = 7000;
-	private tcpClient: any;
-	private udpClient: any;
+	private tcpClient: any = null;
+	private udpClient: any = null;
 
 	constructor () {
 		console.log('Searching drone...');
-		this.initWebRTCConnection();
-		this.connectWithTCPServer();
+		this.setupWebRTCConnection();
+
+		setInterval(() => {
+			this.retryConnection();
+		}, this.reconnectionTimeout);
 	}
 
-	private initWebRTCConnection() {
-		this.webrtcConnection = new WebRTCConnection({
-			events: {
-				connected: () => {
-					console.log('webrtc connected!');
-				},
-				disconnected: () => {
-					console.log('webrtc disconnected!');
-					//this.state.communication.connected.setValue(false);
-				},
-				messageReceived: (message) => {
-					this.handleMessageReceived(message);
-				},
-				readyToSend: (ready:boolean) => {
-					console.log('webrtc ready to send', ready);
-					//this.state.communication.connected.setValue(ready);
-				}
+	private retryConnection() {
+		if(!this.isReliableChannelReady &&
+			this.tcpClient == null) {
+			// If connection lost or refused (maybe not found).
+			// Try re-connection...
+			this.connectWithTCPServer();
+		} else if(this.isReliableChannelReady && this.tcpClient != null) {
+			console.log('send ping!');
+			this.tcpClient.send('pang', {a : 'hello' });
+			this.tcpClient.send('messageEvent', {body: 'This is an object!'});
+
+			if(this.udpClient != null) {
+				this.udpClient.send('clientMessage', {a: 'holassss'});
 			}
-		});
+		}
 	}
 
 	private connectWithTCPServer() {
@@ -46,16 +44,14 @@ export class RelayServer {
 			adapter: 'tcp', // Server's adapter
 			encoder: 'json', // Server's encoder
 			channels: {
-				userEvent: (data) => {
-					console.log('Server: ' + data);
+				droneMessage: (data) => {
+					this.relayReliableMessageToClient(data);
+				},
+				pung: (data) => {
+					console.log(data);
 				}
 			}
-		});
-	
-		this.tcpClient.send('messageEvent', {body: 'This is an object!'}); 
-		this.tcpClient.subscribe('someOtherEvent', function() {
-
-		});
+		}); 
 
 		this.tcpClient.on('error', (error:any) => {
 			if(	error.code != 'ECONNREFUSED' &&
@@ -67,27 +63,23 @@ export class RelayServer {
 		this.tcpClient.on('connect', (socket) => {
 			console.log('Connection with drone established');
 			this.isReliableChannelReady = true;
-			this.webrtcConnection.connect();
 			this.connectWithUDPServer();
+			this.webrtcConnection.connect();
 		});
 
 		this.tcpClient.on('disconnect', (socket) => {
+			this.tcpClient.destroy();
+			this.tcpClient.removeAllListeners();
+			this.tcpClient = null;
+
 			if(this.isReliableChannelReady) {
 				console.log('Disconnected from drone');
 				this.isReliableChannelReady = false;
-				this.tcpClient.destroy();
 				this.udpClient.destroy();
+				this.udpClient.removeAllListeners();
+				this.udpClient = null;
 				this.webrtcConnection.disconnect();
-				// DO something else!
-				// also reject UDP.
-				// and WebRTC? 
 			}
-
-			// Connection lost or refused (maybe not found).
-			// Try re-connection...
-			setTimeout(() => {
-				this.connectWithTCPServer();
-			}, this.reconnectionTimeout);
 		});
 	}
 
@@ -98,30 +90,70 @@ export class RelayServer {
 			adapter: 'udp', // Server's adapter
 			encoder: 'json', // Server's encoder
 			channels: {
-				userEvent: (data) => {
-					console.log('Server: ' + data);
+				droneMessage: (data) => {
+					this.relayFastMessageToClient(data);
+				},
+				test: (data) => {
+					console.log(data);
 				}
 			}
 		});
-	
-		this.tcpClient.send('messageEvent', {body: 'This is an object!'}); 
-		this.tcpClient.subscribe('someOtherEvent', function() {
+	}
 
+	private setupWebRTCConnection() {
+		this.webrtcConnection = new WebRTCConnection({
+			events: {
+				connected: () => {
+					console.log('webrtc connected!');
+				},
+				disconnected: () => {
+					console.log('webrtc disconnected!');
+					//this.state.communication.connected.setValue(false);
+				},
+				reliableMessageReceived: (data) => {
+					this.relayReliableMessageToDrone(data);
+				},
+				fastMessageReceived: (data) => {
+					this.relayFastMessageToDrone(data);
+				},
+				readyToSend: (ready:boolean) => {
+					console.log('webrtc ready to send', ready);
+					//this.state.communication.connected.setValue(ready);
+				}
+			}
 		});
 	}
 
-	private handleMessageReceived(message: string) {
-		/*
-		TODO!.
-		try {
-			let data: any = JSON.parse(message);
-			if(data.joystick !== undefined) {
-				//console.log(data.joystick);
-			}
-		} catch(e) {
-			console.log('Error! Failed to parse message from client');
+	private relayReliableMessageToClient(data: any) {
+		console.log(data);
+		if(this.webrtcConnection) {
+			this.webrtcConnection.sendDataUsingReliableChannel(data);
 		}
-		*/
+	}
+
+	private relayFastMessageToClient(data: any) {
+		console.log(data);
+		if(this.webrtcConnection) {
+			this.webrtcConnection.sendDataUsingFastChannel(data);
+		}
+	}
+
+	private relayReliableMessageToDrone(data: any) {
+        if(typeof data === 'string') {
+            data = JSON.parse(data);
+        }
+		if(this.isReliableChannelReady && this.tcpClient) {
+			this.tcpClient.send('clientMessage', data);
+		}
+	}
+
+	private relayFastMessageToDrone(data: any) {
+        if(typeof data === 'string') {
+            data = JSON.parse(data);
+        }
+		if(this.isReliableChannelReady && this.udpClient) {
+			this.udpClient.send('clientMessage', data);
+		}
 	}
 }
 
