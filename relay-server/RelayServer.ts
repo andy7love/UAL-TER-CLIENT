@@ -6,7 +6,7 @@ export class RelayServer {
 	private webrtcConnection: WebRTCConnection = null;
 	private isReliableChannelReady: boolean = false;
 	private reconnectionTimeout: number = 1000; // ms.
-	private droneHostname: string = '127.0.0.1';
+	private droneAddress: string = '127.0.0.1';
 	private jsonSocket: any = null;
 
 	private tcpPort: number = 6000;
@@ -14,15 +14,15 @@ export class RelayServer {
 	private tcpJsonSocket: any = null;
 
 	private udpPort: number = 7000;
-	
-	//private udpSocket: dgram.Socket = null;
+	private udpSocket: dgram.Socket = null;
 
 	constructor () {
 		this.jsonSocket = require('json-socket');
 		this.setupWebRTCConnection();
+		this.setupTCPConnection();
+		this.setupUDPConnection();
 
 		console.log('Searching drone...');
-		this.connectWithTCPServer();
 		setInterval(() => {
 			this.retryConnection();
 		}, this.reconnectionTimeout);
@@ -32,27 +32,21 @@ export class RelayServer {
 		if(!this.isReliableChannelReady) {
 			// If connection lost or refused (maybe not found).
 			// Try re-connection...
-			this.tcpSocket.connect(this.tcpPort, this.droneHostname);
-		} else {
-			console.log('send ping!');
-			this.tcpSocket.sendMessage({
-				message: 'hello im client!'
-			});
+			this.tcpSocket.connect(this.tcpPort, this.droneAddress);
 		}
 	}
 
-	private connectWithTCPServer() {
+	private setupTCPConnection() {
 		this.tcpSocket = new this.jsonSocket(new net.Socket());
 
 		this.tcpSocket.on('connect', (data) => {			
 			console.log('Connection with drone established');
 			this.isReliableChannelReady = true;
-			this.connectWithUDPServer();
 			this.webrtcConnection.connect();
 		});
 
-		this.tcpSocket.on('message', (data) => {			
-			console.log('TCP recieved data from server: ', data);
+		this.tcpSocket.on('message', (data) => {
+			this.relayReliableMessageToClient(data);
 		});
 
 		this.tcpSocket.on("error", (error:any) => {
@@ -70,23 +64,6 @@ export class RelayServer {
 		this.tcpSocket.on('end', () => {
 			this.handleDisconnectionFromDrone();
 		});
-
-		/*
-		this.tcpClient.on('disconnect', (socket) => {
-			this.tcpClient.destroy();
-			this.tcpClient.removeAllListeners();
-			this.tcpClient = null;
-
-			if(this.isReliableChannelReady) {
-				console.log('Disconnected from drone');
-				this.isReliableChannelReady = false;
-				this.udpClient.destroy();
-				this.udpClient.removeAllListeners();
-				this.udpClient = null;
-				this.webrtcConnection.disconnect();
-			}
-		});
-		*/
 	}
 
 	private handleDisconnectionFromDrone() {
@@ -94,29 +71,26 @@ export class RelayServer {
 			console.log('disconnected from drone');
 			this.isReliableChannelReady = false;
 			this.webrtcConnection.disconnect();
-			// drop udp connection ????
+			//this.udpSocket.close();
 			
 			console.log('Searching drone...');
 		}
 	}
 
-	private connectWithUDPServer() {
-		/*
-		this.udpClient = new Kalm.Client({
-			hostname: this.droneHostname, // Server's IP
-			port: this.udpPort, // Server's port
-			adapter: 'udp', // Server's adapter
-			encoder: 'json', // Server's encoder
-			channels: {
-				droneMessage: (data) => {
-					this.relayFastMessageToClient(data);
-				},
-				test: (data) => {
-					console.log(data);
-				}
-			}
+	private setupUDPConnection() {
+		this.udpSocket = dgram.createSocket('udp4');
+
+		this.udpSocket.on("message", (msg, rinfo) => {
+			this.relayFastMessageToClient(msg.toString());
 		});
-		*/
+
+		this.udpSocket.on("err", (err) => {
+			console.log("client error: \n" + err.stack);
+		});
+
+		this.udpSocket.on("close", () => {
+			console.log("udp closed.");
+		});
 	}
 
 	private setupWebRTCConnection() {
@@ -127,7 +101,6 @@ export class RelayServer {
 				},
 				disconnected: () => {
 					console.log('webrtc disconnected!');
-					//this.state.communication.connected.setValue(false);
 				},
 				reliableMessageReceived: (data) => {
 					this.relayReliableMessageToDrone(data);
@@ -137,46 +110,37 @@ export class RelayServer {
 				},
 				readyToSend: (ready:boolean) => {
 					console.log('webrtc ready to send', ready);
-					//this.state.communication.connected.setValue(ready);
 				}
 			}
 		});
 	}
 
 	private relayReliableMessageToClient(data: any) {
-		console.log(data);
 		if(this.webrtcConnection) {
 			this.webrtcConnection.sendDataUsingReliableChannel(data);
 		}
 	}
 
 	private relayFastMessageToClient(data: any) {
-		console.log(data);
 		if(this.webrtcConnection) {
 			this.webrtcConnection.sendDataUsingFastChannel(data);
 		}
 	}
 
 	private relayReliableMessageToDrone(data: any) {
-		/*
         if(typeof data === 'string') {
             data = JSON.parse(data);
         }
-		if(this.isReliableChannelReady && this.tcpClient) {
-			this.tcpClient.send('clientMessage', data);
+		if(this.isReliableChannelReady) {
+			this.tcpSocket.sendMessage(data);
 		}
-		*/
 	}
 
 	private relayFastMessageToDrone(data: any) {
-		/*
-        if(typeof data === 'string') {
-            data = JSON.parse(data);
-        }
-		if(this.isReliableChannelReady && this.udpClient) {
-			this.udpClient.send('clientMessage', data);
+		if(this.isReliableChannelReady) {
+			var message = new Buffer(data);
+			this.udpSocket.send(message, 0, message.length, this.udpPort, this.droneAddress);
 		}
-		*/
 	}
 }
 

@@ -23,7 +23,7 @@ io.sockets.on('connection', function(socket) {
   });
   socket.on('drone-connect', function() {
     droneSocket = socket;
-    console.log('drone-connected');
+    console.log('relay-server-connected');
     socket.broadcast.emit('drone-connected');
   });
 
