@@ -1,72 +1,77 @@
+import * as net from 'net';
+import * as dgram from 'dgram';
 import { WebRTCConnection } from "./helpers/WebRTCConnection";
-const Kalm = require('kalm');
 
 export class RelayServer {
 	private webrtcConnection: WebRTCConnection = null;
 	private isReliableChannelReady: boolean = false;
 	private reconnectionTimeout: number = 1000; // ms.
 	private droneHostname: string = '127.0.0.1';
+	private jsonSocket: any = null;
+
 	private tcpPort: number = 6000;
+	private tcpSocket: any = null;
+	private tcpJsonSocket: any = null;
+
 	private udpPort: number = 7000;
-	private tcpClient: any = null;
-	private udpClient: any = null;
+	
+	//private udpSocket: dgram.Socket = null;
 
 	constructor () {
-		console.log('Searching drone...');
+		this.jsonSocket = require('json-socket');
 		this.setupWebRTCConnection();
 
+		console.log('Searching drone...');
+		this.connectWithTCPServer();
 		setInterval(() => {
 			this.retryConnection();
 		}, this.reconnectionTimeout);
 	}
 
 	private retryConnection() {
-		if(!this.isReliableChannelReady &&
-			this.tcpClient == null) {
+		if(!this.isReliableChannelReady) {
 			// If connection lost or refused (maybe not found).
 			// Try re-connection...
-			this.connectWithTCPServer();
-		} else if(this.isReliableChannelReady && this.tcpClient != null) {
+			this.tcpSocket.connect(this.tcpPort, this.droneHostname);
+		} else {
 			console.log('send ping!');
-			this.tcpClient.send('pang', {a : 'hello' });
-			this.tcpClient.send('messageEvent', {body: 'This is an object!'});
-
-			if(this.udpClient != null) {
-				this.udpClient.send('clientMessage', {a: 'holassss'});
-			}
+			this.tcpSocket.sendMessage({
+				message: 'hello im client!'
+			});
 		}
 	}
 
 	private connectWithTCPServer() {
-		this.tcpClient = new Kalm.Client({
-			hostname: this.droneHostname, // Server's IP
-			port: this.tcpPort, // Server's port
-			adapter: 'tcp', // Server's adapter
-			encoder: 'json', // Server's encoder
-			channels: {
-				droneMessage: (data) => {
-					this.relayReliableMessageToClient(data);
-				},
-				pung: (data) => {
-					console.log(data);
-				}
-			}
-		}); 
+		this.tcpSocket = new this.jsonSocket(new net.Socket());
 
-		this.tcpClient.on('error', (error:any) => {
-			if(	error.code != 'ECONNREFUSED' &&
-			   	error.code != 'ECONNRESET' ) {
-				console.log('TCP ERROR: ', error);
-			}
-		});
-
-		this.tcpClient.on('connect', (socket) => {
+		this.tcpSocket.on('connect', (data) => {			
 			console.log('Connection with drone established');
 			this.isReliableChannelReady = true;
 			this.connectWithUDPServer();
 			this.webrtcConnection.connect();
 		});
 
+		this.tcpSocket.on('message', (data) => {			
+			console.log('TCP recieved data from server: ', data);
+		});
+
+		this.tcpSocket.on("error", (error:any) => {
+			if(	error.code != 'ECONNREFUSED' &&
+				error.code != 'ECONNRESET' && 
+				error.code != 'EINVAL' ) {
+				console.log('TCP ERROR: ', error);
+			}
+		});
+
+		this.tcpSocket.on('close', (had_error) => {
+			this.handleDisconnectionFromDrone();
+		});
+
+		this.tcpSocket.on('end', () => {
+			this.handleDisconnectionFromDrone();
+		});
+
+		/*
 		this.tcpClient.on('disconnect', (socket) => {
 			this.tcpClient.destroy();
 			this.tcpClient.removeAllListeners();
@@ -81,9 +86,22 @@ export class RelayServer {
 				this.webrtcConnection.disconnect();
 			}
 		});
+		*/
+	}
+
+	private handleDisconnectionFromDrone() {
+		if(this.isReliableChannelReady) {
+			console.log('disconnected from drone');
+			this.isReliableChannelReady = false;
+			this.webrtcConnection.disconnect();
+			// drop udp connection ????
+			
+			console.log('Searching drone...');
+		}
 	}
 
 	private connectWithUDPServer() {
+		/*
 		this.udpClient = new Kalm.Client({
 			hostname: this.droneHostname, // Server's IP
 			port: this.udpPort, // Server's port
@@ -98,6 +116,7 @@ export class RelayServer {
 				}
 			}
 		});
+		*/
 	}
 
 	private setupWebRTCConnection() {
@@ -139,21 +158,25 @@ export class RelayServer {
 	}
 
 	private relayReliableMessageToDrone(data: any) {
+		/*
         if(typeof data === 'string') {
             data = JSON.parse(data);
         }
 		if(this.isReliableChannelReady && this.tcpClient) {
 			this.tcpClient.send('clientMessage', data);
 		}
+		*/
 	}
 
 	private relayFastMessageToDrone(data: any) {
+		/*
         if(typeof data === 'string') {
             data = JSON.parse(data);
         }
 		if(this.isReliableChannelReady && this.udpClient) {
 			this.udpClient.send('clientMessage', data);
 		}
+		*/
 	}
 }
 
