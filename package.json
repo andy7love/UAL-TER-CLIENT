@@ -4,7 +4,8 @@
   "description": "Unmanned Aircraft Life - Terminal Client",
   "main": "index.js",
   "scripts": {
-    "start": "gulp",
+    "start": "gulp serve",
+    "dev": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,6 +32,7 @@
     "socket.io-client": "^1.7.2",
     "typescript": "^2.0.10",
     "typings": "^2.0.0",
+    "underscore": "^1.8.3",
     "wrtc": "0.0.61"
   }
 }

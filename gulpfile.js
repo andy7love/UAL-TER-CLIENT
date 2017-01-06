@@ -43,7 +43,15 @@ gulp.task('watch', ['build'], function () {
     gulp.watch(['src/*.ts', 'src/**/*.ts'], ['build']);
 });
  
-gulp.task('serve', ['build'], function (cb) {
+gulp.task('serve:after-build', ['build'], function (cb) {
+    serve(cb);
+});
+
+gulp.task('serve', [], function (cb) {
+    serve(cb);
+});
+
+var serve = function(cb) {
     var express = require('express');
     var app = express();
     var port = 8000;
@@ -82,8 +90,8 @@ gulp.task('serve', ['build'], function (cb) {
         contentServer.close();
         console.log('Server closed');
     };
-});
+};
 
 gulp.task('build', ['clean', 'scripts', 'relay-server:build', 'static']);
 
-gulp.task('default', ['build', 'serve', 'watch']);
+gulp.task('default', ['build', 'serve:after-build', 'watch']);

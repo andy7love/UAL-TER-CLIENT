@@ -1,19 +1,20 @@
 import * as net from 'net';
 import * as dgram from 'dgram';
 import { WebRTCConnection } from "./helpers/WebRTCConnection";
+import Configuration from './managers/Configuration';
 
 export class RelayServer {
 	private webrtcConnection: WebRTCConnection = null;
 	private isReliableChannelReady: boolean = false;
-	private reconnectionTimeout: number = 1000; // ms.
-	private droneAddress: string = '127.0.0.1';
+	private reconnectionTimeout: number = Configuration.communication.reconnectionTimeout; // ms.
+	private droneAddress: string = Configuration.communication.drone.hostname;
 	private jsonSocket: any = null;
 
-	private tcpPort: number = 6000;
+	private tcpPort: number = Configuration.communication.drone.tcpPort;
 	private tcpSocket: any = null;
 	private tcpJsonSocket: any = null;
 
-	private udpPort: number = 7000;
+	private udpPort: number = Configuration.communication.drone.udpPort;
 	private udpSocket: dgram.Socket = null;
 
 	constructor () {
@@ -52,7 +53,8 @@ export class RelayServer {
 		this.tcpSocket.on("error", (error:any) => {
 			if(	error.code != 'ECONNREFUSED' &&
 				error.code != 'ECONNRESET' && 
-				error.code != 'EINVAL' ) {
+				error.code != 'EINVAL' &&
+				error.code != 'EADDRNOTAVAIL' ) {
 				console.log('TCP ERROR: ', error);
 			}
 		});
@@ -71,7 +73,6 @@ export class RelayServer {
 			console.log('disconnected from drone');
 			this.isReliableChannelReady = false;
 			this.webrtcConnection.disconnect();
-			//this.udpSocket.close();
 			
 			console.log('Searching drone...');
 		}

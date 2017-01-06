@@ -1,6 +1,7 @@
 /// <reference path="../../typings/globals/node/index.d.ts" />
 /// <reference path="../../typings/globals/socket.io-client/index.d.ts" />
 /// <reference path="../../typings/globals/webrtc/rtcpeerconnection/index.d.ts" />
+import Configuration from '../managers/Configuration';
 
 interface NodeWebRTC {
     RTCPeerConnection: new (configuration: RTCConfiguration, 
@@ -60,7 +61,7 @@ export class WebRTCConnection {
         }  
     };
     private webrtc: NodeWebRTC;
-    private signalingServerURL: string = 'http://localhost:8080';
+    private signalingServerURL: string = Configuration.communication.relaySignalingServer;
     private socket:SocketIOClient.Socket;
     private peerConnection: RTCPeerConnection = null;
     private isPeerConnectionStarted: boolean = false;

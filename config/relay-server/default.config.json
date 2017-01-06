@@ -1,0 +1,11 @@
+{
+    "communication": {
+        "drone": {
+            "hostname": "127.0.0.1",
+            "tcpPort": 6000,
+            "udpPort": 7000
+        },
+        "relaySignalingServer": "http://localhost:8080",
+        "reconnectionTimeout": 1000
+    }
+}
