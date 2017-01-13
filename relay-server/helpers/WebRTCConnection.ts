@@ -1,12 +1,22 @@
+/// <reference path="../../typings/globals/node/index.d.ts" />
 /// <reference path="../../typings/globals/socket.io-client/index.d.ts" />
 /// <reference path="../../typings/globals/webrtc/rtcpeerconnection/index.d.ts" />
+import Configuration from '../managers/Configuration';
+
+interface NodeWebRTC {
+    RTCPeerConnection: new (configuration: RTCConfiguration, 
+                            constraints?: RTCMediaConstraints) => RTCPeerConnection,
+    RTCSessionDescription: new (descriptionInitDict?: RTCSessionDescriptionInit) => RTCSessionDescription,
+    RTCIceCandidate: new (candidateInitDict?: RTCIceCandidate) => RTCIceCandidate
+}
 
 interface WebRTCConnectionSettings {
     events: {
         connected: () => void,
         disconnected: () => void,
         readyToSend: (ready: boolean) => void,
-        messageReceived: (data: string) => void
+        reliableMessageReceived: (data: string) => void
+        fastMessageReceived: (data: string) => void
     }
 }
 
@@ -23,9 +33,9 @@ interface ClientChannels {
 
 export class WebRTCConnection {
     public static SignalingEvents = {
-        clientConnect: 'client-connect',
         clientConnected: 'client-connected',
         droneConnected: 'drone-connected',
+        droneConnect: 'drone-connect',
         messageToClient: 'message-to-client',
         messageToDrone: 'message-to-drone'
     };
@@ -36,97 +46,93 @@ export class WebRTCConnection {
     };
     private channels: ClientChannels = {
         reliable: {
-            label: 'client-reliable-channel',
+            label: 'drone-reliable-channel',
             configuration: {
                 ordered: true,
                 maxRetransmits: 100
             }
         },
         fast: {
-            label: 'client-fast-channel',
+            label: 'drone-fast-channel',
             configuration: {
                 ordered: false,
                 maxRetransmits: 0
             }
         }  
     };
-    private signalingServerURL: string = 'http://localhost:8080';
+    private webrtc: NodeWebRTC;
+    private signalingServerURL: string = Configuration.communication.relaySignalingServer;
     private socket:SocketIOClient.Socket;
-    private peerConnection: RTCPeerConnection;
+    private peerConnection: RTCPeerConnection = null;
     private isPeerConnectionStarted: boolean = false;
     private settings: WebRTCConnectionSettings;
 
     constructor(settings: WebRTCConnectionSettings) {
+        this.webrtc = require('wrtc');
         this.settings = settings;
     }
 
     public connect(): void {
-        this.socket = io.connect(this.signalingServerURL);
-        this.socket.on(WebRTCConnection.SignalingEvents.clientConnected, () => {
-            console.log('Warning! another client was connected! I will not receive more signaling messages. Disconnecting...');
+        this.socket = require('socket.io-client')(this.signalingServerURL);
+        this.socket.on(WebRTCConnection.SignalingEvents.droneConnected, () => {
+            console.log('Warning! another drone was connected! I will not receive more signaling messages. Disconnecting...');
             this.closeConnection();
         });
-        this.socket.on(WebRTCConnection.SignalingEvents.droneConnected, () => {
-            if(this.isPeerConnectionStarted) {
-                console.log('new drone! replace connection.');
-                this.closeConnection();
-            }
-            this.startPeerConnection();
+        this.socket.on(WebRTCConnection.SignalingEvents.messageToDrone, (message: any) => {
+            this.handleMessageToDrone(message);
         });
-        this.socket.on(WebRTCConnection.SignalingEvents.messageToClient, (message: any) => {
-            this.handleMessageToClient(message);
-        });
-        window.onbeforeunload = () => {
-            this.sendMessageToDrone(WebRTCConnection.SignalingPeerMessages.disconnect);
-        };
-        this.socket.emit(WebRTCConnection.SignalingEvents.clientConnect);
+        this.socket.emit(WebRTCConnection.SignalingEvents.droneConnect);
     }
 
     public disconnect() {
-        this.sendMessageToDrone(WebRTCConnection.SignalingPeerMessages.disconnect);
+        this.sendMessageToClient(WebRTCConnection.SignalingPeerMessages.disconnect);
         this.closeConnection();
     }
 
-    private sendMessageToDrone(message: any): void {
-        this.socket.emit(WebRTCConnection.SignalingEvents.messageToDrone, message);
+    private sendMessageToClient(message: any): void {
+        this.socket.emit(WebRTCConnection.SignalingEvents.messageToClient, message);
     }
 
-    private handleMessageToClient(message: any): void {
-        if(!this.isPeerConnectionStarted) {
-            return;
-        }
-
-        if (message.type === WebRTCConnection.SignalingPeerMessages.answer) {
-            this.peerConnection.setRemoteDescription(new RTCSessionDescription(message));
-        } else if (message.type === WebRTCConnection.SignalingPeerMessages.candidate) {
-            var candidate = new RTCIceCandidate({
-                sdpMLineIndex: message.label,
-                candidate: message.candidate
-            });
-            this.peerConnection.addIceCandidate(candidate);
-        } else if (message === WebRTCConnection.SignalingPeerMessages.disconnect) {
-            this.closeConnection();
+    private handleMessageToDrone(message: any): void {
+        if (message.type === 'offer') {
+            if(this.isPeerConnectionStarted) {
+                console.log('new client! replace connection.');
+                this.closeConnection();
+            }
+            this.answerOffer(new this.webrtc.RTCSessionDescription(message));
+        } else if(!this.isPeerConnectionStarted) {
+            if (message.type === WebRTCConnection.SignalingPeerMessages.candidate) {
+                var candidate = new this.webrtc.RTCIceCandidate({
+                    sdpMLineIndex: message.label,
+                    candidate: message.candidate
+                });
+                if(this.peerConnection) {
+                    this.peerConnection.addIceCandidate(candidate);
+                }
+            } else if (message === WebRTCConnection.SignalingPeerMessages.disconnect) {
+                this.closeConnection();
+            }
         }
     }
 
-    private startPeerConnection(): void {
+    private answerOffer(remoteDescription: RTCSessionDescription): void {
         if (!this.isPeerConnectionStarted) {
-            console.log('P2P: Connecting...');
             this.createPeerConnection();
             this.isPeerConnectionStarted = true;
-            this.peerConnection.createOffer((sessionDescription) => {
+            this.peerConnection.setRemoteDescription(remoteDescription);
+            this.peerConnection.createAnswer((sessionDescription) => {
                 this.peerConnection.setLocalDescription(sessionDescription);
-                this.sendMessageToDrone(sessionDescription);
+                this.sendMessageToClient(sessionDescription);
                 this.settings.events.connected();
             }, (error) => {
-                console.log('createOffer() error: ', error.toString());
+                console.log('createAnswer() error: ', error.toString());
             });
         }
     }
 
     private createPeerConnection(): void {
         try {
-            this.peerConnection = new RTCPeerConnection(null);
+            this.peerConnection = new this.webrtc.RTCPeerConnection(null);
             this.peerConnection.onicecandidate = (event) => {
                 this.handleIceCandidate(event);
             };
@@ -160,16 +166,34 @@ export class WebRTCConnection {
         this.channels.fast.channel = newChannel;
     }
 
-    private handleIncomingChannels(event: RTCDataChannelEvent) {
-        let receiveChannel: RTCDataChannel = event.channel;
-        receiveChannel.onmessage = (event) => {
-            this.receiveMessage(event);
-        };
+    private handleIncomingChannels(event: any) {
+        let receiveChannel: any = event.channel;
+
+        switch(receiveChannel.label) {
+            case 'client-reliable-channel':
+                receiveChannel.onmessage = (event) => {
+                    this.receiveReliableMessage(event);
+                };
+                break;
+            case 'client-fast-channel':
+                receiveChannel.onmessage = (event) => {
+                    this.receiveFastMessage(event);
+                };
+                break;
+            default:
+                console.error('Unkown data channel label received. ', receiveChannel.label);
+                break;
+        }
     }
 
-    private receiveMessage(event: RTCMessageEvent) {
+    private receiveReliableMessage(event: RTCMessageEvent) {
         let data = event.data;
-        this.settings.events.messageReceived(data);
+        this.settings.events.reliableMessageReceived(data);
+    }
+
+    private receiveFastMessage(event: RTCMessageEvent) {
+        let data = event.data;
+        this.settings.events.fastMessageReceived(data);
     }
 
     private handleReliableChannelStateChange() {
@@ -184,7 +208,7 @@ export class WebRTCConnection {
 
     private handleIceCandidate(event: RTCIceCandidateEvent) {
         if (event.candidate) {
-            this.sendMessageToDrone({
+            this.sendMessageToClient({
                 type: 'candidate',
                 label: event.candidate.sdpMLineIndex,
                 id: event.candidate.sdpMid,
@@ -200,7 +224,7 @@ export class WebRTCConnection {
         if(this.isReadyToSend()) {
             this.channels.reliable.channel.send(data);
         } else {
-            console.log('Warning! Reliable channel not ready to send data! - data lost');
+            console.warn('Reliable channel not ready to send data! - data lost');
         }
     }
 
@@ -214,12 +238,13 @@ export class WebRTCConnection {
     }
 
     private closeConnection() {
-        console.log('P2P: Closing connection...');
         this.isPeerConnectionStarted = false;
         if(this.peerConnection !== null) {
             this.peerConnection.close();
             this.peerConnection = null;
         }
+        this.socket.removeAllListeners();
+        this.socket.close();
         this.settings.events.disconnected();
     }
 }
