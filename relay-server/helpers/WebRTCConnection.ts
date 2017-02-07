@@ -97,7 +97,7 @@ export class WebRTCConnection {
         if (message.type === 'offer') {
             if(this.isPeerConnectionStarted) {
                 console.log('new client! replace connection.');
-                this.closeConnection();
+                this.closeWebRTCConnection();
             }
             this.answerOffer(new this.webrtc.RTCSessionDescription(message));
         } else if(!this.isPeerConnectionStarted) {
@@ -237,12 +237,16 @@ export class WebRTCConnection {
         }
     }
 
-    private closeConnection() {
+    private closeWebRTCConnection() {
         this.isPeerConnectionStarted = false;
         if(this.peerConnection !== null) {
             this.peerConnection.close();
             this.peerConnection = null;
         }
+    }
+
+    private closeConnection() {
+        this.closeWebRTCConnection();
         this.socket.removeAllListeners();
         this.socket.close();
         this.settings.events.disconnected();

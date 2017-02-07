@@ -2,10 +2,27 @@ import { ClientState } from "states/ClientState";
 
 export class UserInput {
 	private state: ClientState;
+	private mappings: any = {
+		67: "SWAP_CAMERA", // C
+		83: "TOGGLE_SIMULATION_VIEW", // S
+		72: "TOGGLE_HUD" // H
+	};
 
 	constructor (state: ClientState) {
 		this.state = state;
-		this.inputLoop();
+		this.listenJoystick();
+		this.listenKeyboard();
+	}
+
+	private listenKeyboard() {
+		window.addEventListener("keydown", (event:KeyboardEvent) => {
+			var action = this.mappings[event.keyCode];
+			switch (action) {
+				case "SWAP_CAMERA":
+					this.state.UIState.firstPersonCamera.setValue(!this.state.UIState.firstPersonCamera.getValue());
+					break;
+			}
+		})
 	}
 
 	private round(value: number, decimals: number): number {
@@ -16,7 +33,7 @@ export class UserInput {
 		return this.round(value, 2);
 	}
 
-	private inputLoop() {
+	private listenJoystick() {
 		let gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
 		if (gamepads && gamepads[0]) {
 			let joystick: Gamepad = gamepads[0];
@@ -24,7 +41,7 @@ export class UserInput {
 			this.state.joystick.setValue(this.normalizeAction(joystick));
 		}
 		
-		requestAnimationFrame(this.inputLoop.bind(this));
+		requestAnimationFrame(this.listenJoystick.bind(this));
 	}
 
 	private normalizeAction(joystick) {

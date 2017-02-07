@@ -1,8 +1,12 @@
 var gulp = require('gulp');
+var runSequence = require('run-sequence');
 var ts = require('gulp-typescript');
 var clean = require('gulp-rimraf');
 var copy = require('gulp-copy');
 var uglify = require('gulp-uglify');
+var sass = require('gulp-sass');
+var pug = require('gulp-pug');
+var pugConcat = require('gulp-pug-template-concat');
 var fork = require('child_process').fork;
 var chalk = require('chalk');
 var tsProject = ts.createProject('./tsconfig.json');
@@ -13,7 +17,7 @@ gulp.task('clean', [], function () {
         .pipe(clean());
 });
 
-gulp.task('relay-server:build', ['clean'], function () {
+gulp.task('relay-server:build', [], function () {
     return gulp.src('relay-server/**/*.ts')
         .pipe(ts({
             "removeComments": true,
@@ -24,7 +28,24 @@ gulp.task('relay-server:build', ['clean'], function () {
         .pipe(gulp.dest('build/relay-server'));
 });
 
-gulp.task('scripts', ['clean'], function () {
+gulp.task('sass', [], function () {
+  return gulp.src('src/sass/app.scss')
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulp.dest('build'));
+});
+ 
+gulp.task('views', [], function buildHTML() {
+    return gulp.src('src/views/**/*.pug')
+        .pipe(pug({
+            client: true
+        }))
+        .pipe(pugConcat('templates.js', {
+            // nothing...      
+        }))
+        .pipe(gulp.dest('build'))
+});
+
+gulp.task('scripts', [], function () {
     var tsResult = tsProject.src()
         .pipe(tsProject());
 
@@ -33,25 +54,13 @@ gulp.task('scripts', ['clean'], function () {
         .pipe(gulp.dest('build'));
 });
 
-gulp.task('static', ['clean'], function () {
+gulp.task('static', [], function () {
     return gulp
-        .src(['src/*.html', 'src/*.css'])
+        .src(['src/*.html'])
         .pipe(copy('build', {prefix: 1}));
 });
 
-gulp.task('watch', ['build'], function () {
-    gulp.watch(['src/*.ts', 'src/**/*.ts'], ['build']);
-});
- 
-gulp.task('serve:after-build', ['build'], function (cb) {
-    serve(cb);
-});
-
 gulp.task('serve', [], function (cb) {
-    serve(cb);
-});
-
-var serve = function(cb) {
     var express = require('express');
     var app = express();
     var port = 8000;
@@ -90,8 +99,26 @@ var serve = function(cb) {
         contentServer.close();
         console.log('Server closed');
     };
-};
+});
 
-gulp.task('build', ['clean', 'scripts', 'relay-server:build', 'static']);
+gulp.task('watch', [], function () {
+    gulp.watch(['src/**/*.ts'], ['scripts']);
+    gulp.watch(['src/sass/**/*.scss'], ['sass']);
+    gulp.watch(['src/*.html'], ['static']);
+    gulp.watch(['src/views/**/*.pug'], ['views']);
+});
 
-gulp.task('default', ['build', 'serve:after-build', 'watch']);
+gulp.task('build', function(done) {
+    runSequence(
+        'clean', 
+        ['scripts', 'views', 'sass', 'relay-server:build', 'static'],
+        done);
+});
+
+gulp.task('default', function(done) {
+    runSequence(
+        'build',
+        'watch',
+        'serve',
+        done);
+});

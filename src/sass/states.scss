@@ -1,0 +1,20 @@
+.warning {
+    color: red;
+}
+
+a {
+    color: black;
+    text-decoration: none;
+}
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    a:visited {
+        color: white;
+    }
+
+.hidden {
+    display: none;
+}

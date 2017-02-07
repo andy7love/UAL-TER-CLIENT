@@ -5,6 +5,7 @@ export class GraphicsScene {
 	private engine: BABYLON.Engine;
 	private scene: BABYLON.Scene;
 	private camera: BABYLON.ArcRotateCamera;
+	private firstPersonCamera: BABYLON.FreeCamera;
 	private loader: BABYLON.AssetsManager;
 	private light: BABYLON.DirectionalLight;
 	private light2: BABYLON.DirectionalLight;
@@ -13,9 +14,20 @@ export class GraphicsScene {
 	private drone: BABYLON.Mesh;
 	private state: ClientState;
 	private node: BABYLON.Mesh;
+	private hudCanvas: BABYLON.WorldSpaceCanvas2D;
 
 	constructor (state: ClientState) {
 		this.state = state;
+		this.state.UIState.firstPersonCamera
+			.getStream()
+			.changes()
+			.onValue((firstPersonCamera) => {
+				if(firstPersonCamera) {
+					this.scene.setActiveCameraByName(this.firstPersonCamera.name);
+				} else {
+					this.scene.setActiveCameraByName(this.camera.name);
+				}
+			});
 	}
 
 	public createScene(engine: BABYLON.Engine) : BABYLON.Scene {
@@ -29,6 +41,7 @@ export class GraphicsScene {
 
 		this.loader.onFinish = () => {
 			this.setShadows();
+			this.scene.setActiveCameraByName(this.firstPersonCamera.name);
 
 			this.scene.registerBeforeRender(() => {
 				this.constrainCamera(); 
@@ -44,7 +57,9 @@ export class GraphicsScene {
 
 	public setCameraAndLights(): void {
 		this.scene.ambientColor = new BABYLON.Color3(0.2, 0.2, 0.2);
-		this.camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 10, BABYLON.Vector3.Zero(), this.scene);
+		this.camera = new BABYLON.ArcRotateCamera("ThirdPersonCamera", 0, 0, 10, BABYLON.Vector3.Zero(), this.scene);
+		this.firstPersonCamera = new BABYLON.FreeCamera("FirstPersonCamera", new BABYLON.Vector3(0,0,2), this.scene);
+		this.scene.setActiveCameraByName(this.camera.name);
 		this.light = new BABYLON.DirectionalLight("dir01", new BABYLON.Vector3(0, -1, -0.2), this.scene);
 		this.light2 = new BABYLON.DirectionalLight("dir02", new BABYLON.Vector3(-1, -2, -1), this.scene);
 		this.light.position = new BABYLON.Vector3(0, 30, 0);
@@ -114,6 +129,10 @@ export class GraphicsScene {
 			// Specific node for drone.
 			this.drone = new BABYLON.Mesh('drone-node', this.scene);
 			parent.parent = this.drone;
+
+			this.firstPersonCamera.parent = this.drone;
+			this.firstPersonCamera.rotation.y = Math.PI*2; 
+
 			this.node = new BABYLON.Mesh('pivoto', this.scene);
 			this.camera.parent = this.node;
 
