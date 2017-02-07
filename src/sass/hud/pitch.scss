@@ -1,0 +1,55 @@
+.pitch {
+    width: 50%;
+    margin: 20% auto;
+    overflow: hidden;
+    height: 54%;
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: -1908px 0;
+
+        li {
+            font-weight: bold;
+            text-shadow: 0 0 5px $hud-color-bg;
+
+            .left {
+                float: left;
+            }
+
+            .right {
+                float: right;
+            }
+
+            .clear {
+                clear: both;
+            }
+
+            .number {
+                font-size: 1.6em;
+                padding: 5px;
+            }
+
+            .tick {
+                font-size: 2.0em;
+                padding: 10px 33px;
+
+                &::after {
+                    content: '-';
+                }
+            }
+
+            .largeTick {
+                font-size: 2.0em;
+                
+                &::after {
+                    content: '-';
+                }
+            }
+
+            .spacer {
+                padding: 0 35%;
+            }
+        }
+    }
+}

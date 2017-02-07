@@ -1,5 +1,19 @@
-div.pitch
-    - var n = -90;
-    ul
-        while n <= 90
-            li= n++
+div.pitch#pitch
+    - var n = 90;
+    ul#pitch-container
+        while n >= -90
+            li
+                if (n%5==0)
+                    div.left
+                        span.number= n
+                        span.largeTick
+                    div.right
+                        span.largeTick
+                        span.number= n
+                else 
+                    div.left
+                        span.tick
+                    div.right
+                        span.tick
+                div.clear
+            - n--;
