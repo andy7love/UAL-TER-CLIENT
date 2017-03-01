@@ -1,0 +1,30 @@
+mixin generateYawTicks(start, end, interval)
+    - var n = start;
+    while ((interval > 0) ? n <= end : n >= end)
+        li
+            if n%5==0
+                case n
+                    when 0
+                        span.cardinal-point N
+                    when 90
+                        span.cardinal-point E
+                    when 180
+                        span.cardinal-point S
+                    when 270
+                        span.cardinal-point W
+                    default
+                        span.number= n
+                span.largeTick
+            else 
+                span.tick
+        - n = n + interval;
+
+div.heading
+    div.heading-mask#heading-mask
+        div.heading-container
+            ul
+                +generateYawTicks(60,0,-1)
+                +generateYawTicks(1,359,1)
+                +generateYawTicks(0,60,1)
+    div.boxed-value#current-heading  --
+    i.material-icons send

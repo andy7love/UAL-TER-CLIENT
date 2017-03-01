@@ -1,0 +1,10 @@
+.boxed-value {
+    @extend .strong-font;
+    border: 1px solid $hud-color-normal;
+    display: inline-block;
+    padding: 1px 7px;
+    background-color: $hud-transparent-bg;
+    min-width: 35px;
+    font-size: 1.8em;
+    text-align: center;
+}

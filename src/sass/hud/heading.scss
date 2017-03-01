@@ -1,0 +1,85 @@
+.heading {
+    position: absolute;
+    top: 2vh;
+    left: 50%;
+    margin-left: 35px;
+
+    .boxed-value {
+        position: absolute;
+        top: 42px;
+        left: -22px;
+
+        + i.material-icons {
+            position: absolute;
+            transform: rotate3d(0, 0, 1, -90deg);
+            top: 20px;
+            left: -9px;
+        }
+    }
+        
+    .heading-mask {
+        width: 400px;
+        overflow: hidden;
+        height: 68px;
+        margin-left: -200px;
+        box-sizing: border-box;
+        position: relative;
+
+        .heading-container {
+
+            ul {
+                display: flex;
+                margin: 10px 0 0 -82px;
+                transform: translate3d(80px, 0px, 0px);
+
+                li {
+                    list-style-type: none;
+                    position: relative;
+                    width: 10px;
+                    height: 10px;
+                    text-align: center;
+                    padding: 0 2px;
+                    flex: 0;
+
+                    .number {
+                        font-size: 0.8em;
+                        display: block;
+                        position: absolute;
+                        margin-top: -10px;
+                        margin-left: -4px;
+                        width: 14px;
+                        text-align: center;
+                    }
+
+                    .cardinal-point {
+                        @extend .number;
+                        font-size: 1.2em;
+                        margin-top: -13px;
+                    }
+
+                    &.roll-value-0 .number {
+                        font-size: 1.4em;
+                        margin-top: -14px;
+                    }
+
+                    .tick {
+                        font-size: 1.0em;
+                        display: block;
+                        position: absolute;
+                        transform: rotate(90deg);
+
+                        &::after {
+                            content: '-';
+                        }
+                    }
+
+                    .largeTick {
+                        @extend .tick;
+                        font-size: 1.8em;
+                        margin-top: -5px;
+                    }
+                }
+            }
+        }        
+    }
+}

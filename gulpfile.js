@@ -13,8 +13,11 @@ var tsProject = ts.createProject('./tsconfig.json');
 var closeServer = null;
  
 gulp.task('clean', [], function () {
-    return gulp.src('build/**/*', {read: false})
-        .pipe(clean());
+    return gulp.src([
+            'build/**/*',
+            '!build/iconfont/**'
+        ], {read: false})
+        .pipe(clean({ force: true }));
 });
 
 gulp.task('relay-server:build', [], function () {
@@ -56,7 +59,10 @@ gulp.task('scripts', [], function () {
 
 gulp.task('static', [], function () {
     return gulp
-        .src(['src/*.html'])
+        .src([
+            'src/*.html',
+            'src/iconfont/*.*'
+        ])
         .pipe(copy('build', {prefix: 1}));
 });
 

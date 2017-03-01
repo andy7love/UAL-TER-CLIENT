@@ -1,0 +1,15 @@
+div.roll
+    div.roll-mask#roll-mask
+        - var n = 90;
+        div.roll-container
+            ul
+                while n >= -90
+                    li(class='roll-value-' + n)
+                        if (n%5==0)
+                            span.number= Math.abs(n)
+                            span.largeTick
+                        else 
+                            span.tick
+                    - n--;
+    div.boxed-value#current-roll  --
+    i.material-icons send

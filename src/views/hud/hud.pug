@@ -1,2 +1,13 @@
 div.hud
+    div.battery
+        i.material-icons battery_std
+        div.indicator
+            div.progress
+        div.indicator-current --v . --% . --:--
+    include yaw.pug
+    include roll.pug
     include pitch.pug
+    div.crosshair
+        div.line - -
+        div.circle
+        div.line - -

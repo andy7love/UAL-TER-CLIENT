@@ -1,4 +1,6 @@
 div.pitch#pitch
+    div.boxed-value#current-pitch  --
+    i.material-icons send
     - var n = 90;
     ul#pitch-container
         while n >= -90
@@ -10,6 +12,8 @@ div.pitch#pitch
                     div.right
                         span.largeTick
                         span.number= n
+                        if(n==0)
+                            div.zero
                 else 
                     div.left
                         span.tick

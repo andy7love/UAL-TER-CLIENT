@@ -11,6 +11,10 @@ html, body {
     -ms-touch-action: none;
 }
 
+.dg.ac {
+    right: initial !important;
+}
+
 #notSupported {
     color: red;
     width: 100%;

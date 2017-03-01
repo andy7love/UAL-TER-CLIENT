@@ -1,0 +1,90 @@
+.roll {
+    position: absolute;
+    top: 15vh;
+    left: 50%;
+    margin-left: 35px;
+
+    .boxed-value {
+        position: absolute;
+        top: 42px;
+        left: -22px;
+
+        + i.material-icons {
+            position: absolute;
+            transform: rotate3d(0, 0, 1, -90deg);
+            top: 20px;
+            left: -9px;
+        }
+    }
+        
+    .roll-mask {
+        width: 400px;
+        padding-left: 200px;
+        overflow: hidden;
+        height: 68px;
+        margin-left: -200px;
+        box-sizing: border-box;
+        position: relative;
+
+        .roll-container {
+            position: absolute;
+            top: 260px;
+            left: 201px;
+            width: 0;
+            height: 0;
+
+            ul {
+                position: relative;
+                margin-top: -250px;
+
+                li {
+                    list-style-type: none;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    padding-bottom: 500px;
+
+                    @for $i from -90 through 90 {
+                        &.roll-value-#{$i} {
+                            transform: rotate(#{$i}deg)
+                        }
+                    }
+
+                    .number {
+                        font-size: 1.0em;
+                        display: block;
+                        position: absolute;
+                        margin-top: -12px;
+                        margin-left: -4px;
+                        width: 14px;
+                        text-align: center;
+                    }
+
+                    &.roll-value-0 .number {
+                        font-size: 1.4em;
+                        margin-top: -14px;
+                        margin-left: -5px;
+                    }
+
+                    .tick {
+                        font-size: 1.0em;
+                        display: block;
+                        position: absolute;
+                        transform: rotate(90deg);
+
+                        &::after {
+                            content: '-';
+                        }
+                    }
+
+                    .largeTick {
+                        @extend .tick;
+                        font-size: 1.8em;
+                        margin-top: -5px;
+                        margin-left: -1px;
+                    }
+                }
+            }
+        }        
+    }
+}

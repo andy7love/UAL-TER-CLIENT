@@ -55,6 +55,10 @@ export class Communication {
 				this.state.simulation.position.setValue(data.simulation.position);
 				this.state.simulation.orientation.setValue(data.simulation.orientation);
 			}
+
+			if(data.battery !== undefined) {
+				this.state.battery.setValue(data.battery);
+			}
 		} catch(e) {
 			console.error('Error! Failed to parse message from client: ', e);
 		}

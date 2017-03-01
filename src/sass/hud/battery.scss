@@ -1,0 +1,36 @@
+@import '../components/boxed-value';
+
+.battery {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    .material-icons {
+        font-size: 1.4em;
+        transform: rotate(90deg);
+        text-shadow: 0 0 3px $hud-color-light;
+        color: $hud-color-black;
+    }
+
+    .indicator {
+        border: 1px solid $hud-color-normal;
+        background-color: $hud-transparent-bg;
+        padding: 1px;
+        margin: 0 0 0 7px;
+        height: 10px;
+        width: 100px;
+        display: inline-block;
+
+        .progress {
+            width: 0%;
+            height: 10px;
+            background-color: $hud-color-light;
+        }
+    }
+
+    .indicator-current {
+        @extend .light-font;
+        font-size: 1.0em;
+        text-align: right;
+    }
+}
