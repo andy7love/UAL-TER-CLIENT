@@ -13,11 +13,17 @@ export class Utils {
 
     public static toRollPitchYawDegrees(quaternion: BABYLON.Quaternion): RollPitchYaw {
         var euler = quaternion.toEulerAngles();
-        //console.log(euler);
+        var fitMidRangeAngle = (angle) => {
+            if(angle >= 180) {
+                return angle - 360;
+            } else {
+                return angle;
+            }
+        };
         var result: RollPitchYaw = {
-            pitch: -euler.x*90,
-            roll: euler.z*90,
-            yaw:  (euler.y+3)*60
+            pitch: fitMidRangeAngle(BABYLON.Angle.FromRadians(-euler.x).degrees()),
+            roll: fitMidRangeAngle(BABYLON.Angle.FromRadians(euler.z).degrees()),
+            yaw: BABYLON.Angle.FromRadians(euler.y).degrees()
         };
         return result;
     }

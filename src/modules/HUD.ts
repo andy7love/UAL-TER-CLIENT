@@ -32,7 +32,7 @@ export class HUD {
 		
 		this.state.simulation.orientation
 			.getStream()
-			.changes()
+			.skipDuplicates()
 			.map(value => Utils.toRollPitchYawDegrees(value))
 			.throttle(this.renderInterval)
 			.onValue((value) => {
