@@ -30,7 +30,7 @@ export class HUD {
 		var batteryProgressIndicator = $('.battery .indicator .progress');
 		var batteryCurrentValue = $('.battery .indicator-current');
 		
-		this.state.simulation.orientation
+		this.state.drone.orientation
 			.getStream()
 			.skipDuplicates()
 			.map(value => Utils.toRollPitchYawDegrees(value))
@@ -57,7 +57,7 @@ export class HUD {
 				currentHeading.text(Math.round(value.yaw));
 		});
 
-		this.state.battery
+		this.state.drone.battery
 			.getStream()
 			.changes()
 			.map((value) => {

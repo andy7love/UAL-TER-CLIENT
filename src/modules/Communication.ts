@@ -48,6 +48,7 @@ export class Communication {
 	private handleMessageReceived(message: string) {
 		try {
 			let data: any = JSON.parse(message);
+
 			if(data.simulation !== undefined) {
 				data.simulation.position = new BABYLON.Vector3(data.simulation.position.x, data.simulation.position.y, data.simulation.position.z);
 				data.simulation.orientation = new BABYLON.Quaternion(data.simulation.orientation.x, data.simulation.orientation.y, data.simulation.orientation.z, data.simulation.orientation.w);
@@ -56,9 +57,13 @@ export class Communication {
 				this.state.simulation.orientation.setValue(data.simulation.orientation);
 			}
 
-			if(data.battery !== undefined) {
-				this.state.battery.setValue(data.battery);
+			if(data.drone !== undefined) {
+				this.state.drone.battery.setValue(data.drone.battery);
+
+				data.drone.orientation = new BABYLON.Quaternion(data.drone.orientation.x, data.drone.orientation.y, data.drone.orientation.z, data.drone.orientation.w);
+				this.state.drone.orientation.setValue(data.drone.orientation);
 			}
+			
 		} catch(e) {
 			console.error('Error! Failed to parse message from client: ', e);
 		}
