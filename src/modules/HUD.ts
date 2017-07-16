@@ -36,6 +36,12 @@ export class HUD {
 			.map(value => Utils.toRollPitchYawDegrees(value))
 			.throttle(this.renderInterval)
 			.onValue((value) => {
+				console.log("---------------------");
+				console.log("  heading      : ", value.yaw);
+				console.log("  roll         : ", value.roll);
+				console.log("  pitch        : ", value.pitch);
+				console.log("---------------------");
+
 				// Pitch.
 				var pitchGradeInPixels = 15;
 				var p = (value.pitch * pitchGradeInPixels);
