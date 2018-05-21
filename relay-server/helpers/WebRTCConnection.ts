@@ -1,11 +1,7 @@
-/// <reference path="../../typings/globals/node/index.d.ts" />
-/// <reference path="../../typings/globals/socket.io-client/index.d.ts" />
-/// <reference path="../../typings/globals/webrtc/rtcpeerconnection/index.d.ts" />
 import Configuration from '../managers/Configuration';
 
 interface NodeWebRTC {
-    RTCPeerConnection: new (configuration: RTCConfiguration, 
-                            constraints?: RTCMediaConstraints) => RTCPeerConnection,
+    RTCPeerConnection: new (configuration: RTCConfiguration) => RTCPeerConnection,
     RTCSessionDescription: new (descriptionInitDict?: RTCSessionDescriptionInit) => RTCSessionDescription,
     RTCIceCandidate: new (candidateInitDict?: RTCIceCandidate) => RTCIceCandidate
 }
@@ -102,10 +98,10 @@ export class WebRTCConnection {
             this.answerOffer(new this.webrtc.RTCSessionDescription(message));
         } else if(!this.isPeerConnectionStarted) {
             if (message.type === WebRTCConnection.SignalingPeerMessages.candidate) {
-                var candidate = new this.webrtc.RTCIceCandidate({
+                var candidate = new RTCIceCandidate({
                     sdpMLineIndex: message.label,
                     candidate: message.candidate
-                });
+                })
                 if(this.peerConnection) {
                     this.peerConnection.addIceCandidate(candidate);
                 }
@@ -133,7 +129,7 @@ export class WebRTCConnection {
     private createPeerConnection(): void {
         try {
             this.peerConnection = new this.webrtc.RTCPeerConnection(null);
-            this.peerConnection.onicecandidate = (event) => {
+            this.peerConnection.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
                 this.handleIceCandidate(event);
             };
             //pc.onaddstream = handleRemoteStreamAdded;
@@ -171,12 +167,12 @@ export class WebRTCConnection {
 
         switch(receiveChannel.label) {
             case 'client-reliable-channel':
-                receiveChannel.onmessage = (event) => {
+                receiveChannel.onmessage = (event: MessageEvent) => {
                     this.receiveReliableMessage(event);
                 };
                 break;
             case 'client-fast-channel':
-                receiveChannel.onmessage = (event) => {
+                receiveChannel.onmessage = (event: MessageEvent) => {
                     this.receiveFastMessage(event);
                 };
                 break;
@@ -186,12 +182,12 @@ export class WebRTCConnection {
         }
     }
 
-    private receiveReliableMessage(event: RTCMessageEvent) {
+    private receiveReliableMessage(event: MessageEvent) {
         let data = event.data;
         this.settings.events.reliableMessageReceived(data);
     }
 
-    private receiveFastMessage(event: RTCMessageEvent) {
+    private receiveFastMessage(event: MessageEvent) {
         let data = event.data;
         this.settings.events.fastMessageReceived(data);
     }
@@ -206,7 +202,7 @@ export class WebRTCConnection {
             this.channels.reliable.channel.readyState === 'open');
     }
 
-    private handleIceCandidate(event: RTCIceCandidateEvent) {
+    private handleIceCandidate(event: RTCPeerConnectionIceEvent) {
         if (event.candidate) {
             this.sendMessageToClient({
                 type: 'candidate',

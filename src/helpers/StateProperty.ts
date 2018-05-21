@@ -1,4 +1,4 @@
-/// <reference path="../../typings/globals/baconjs/index.d.ts" />
+import * as Bacon from 'baconjs';
 
 interface StateError {
     error: string;

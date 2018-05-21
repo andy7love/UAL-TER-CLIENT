@@ -1,5 +1,5 @@
-/// <reference path="../../typings/globals/dat-gui/index.d.ts" />
-import { ClientState } from "states/ClientState";
+import { ClientState } from "../states/ClientState";
+import * as dat from 'dat.gui';
 
 export class GUIPanel {
 	private gui: dat.GUI;

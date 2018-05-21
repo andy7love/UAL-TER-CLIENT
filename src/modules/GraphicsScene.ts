@@ -1,5 +1,5 @@
-/// <reference path="../../bower_components/babylonjs/dist/babylon.2.4.d.ts" />
-import { ClientState } from "states/ClientState";
+import * as BABYLON from 'babylonjs';
+import { ClientState } from "../states/ClientState";
 
 export class GraphicsScene {
 	private engine: BABYLON.Engine;
@@ -14,7 +14,6 @@ export class GraphicsScene {
 	private drone: BABYLON.Mesh;
 	private state: ClientState;
 	private node: BABYLON.Mesh;
-	private hudCanvas: BABYLON.WorldSpaceCanvas2D;
 
 	constructor (state: ClientState) {
 		this.state = state;

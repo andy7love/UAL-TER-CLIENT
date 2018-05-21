@@ -1,6 +1,6 @@
-/// <reference path="../../typings/globals/pug/index.d.ts" />
-import { ClientState } from "states/ClientState";
-import { Utils } from "helpers/Utils";
+import { ClientState } from "../states/ClientState";
+import { Utils } from "../helpers/Utils";
+import * as pug from 'pug';
 
 export class HUD {
 	private renderInterval: number = 15;
@@ -12,9 +12,7 @@ export class HUD {
 	}
 
 	private createHUD(): void {
-		let html = templates['hud\\hud']({
-
-		});
+		let html = pug.renderFile('hud\\hud');
 		let hud = document.createElement('div');
 		hud.innerHTML = html;
 		document.body.appendChild(hud);

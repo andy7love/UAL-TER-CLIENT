@@ -1,10 +1,10 @@
-import { ClientState } from "states/ClientState";
-import { GraphicsEngine } from "modules/GraphicsEngine";
-import { GraphicsScene } from "modules/GraphicsScene";
-import { UserInput } from "modules/UserInput";
-import { GUIPanel } from "modules/GUIPanel";
-import { HUD } from "modules/HUD";
-import { Communication } from "modules/Communication";
+import { ClientState } from "./states/ClientState";
+import { GraphicsEngine } from "./modules/GraphicsEngine";
+import { GraphicsScene } from "./modules/GraphicsScene";
+import { UserInput } from "./modules/UserInput";
+import { GUIPanel } from "./modules/GUIPanel";
+import { HUD } from "./modules/HUD";
+import { Communication } from "./modules/Communication";
 
 export class App {
     constructor () {

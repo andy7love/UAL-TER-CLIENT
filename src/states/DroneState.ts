@@ -1,5 +1,5 @@
-/// <reference path="../../bower_components/babylonjs/dist/babylon.2.4.d.ts" />
-import { StateProperty } from "helpers/StateProperty";
+import * as BABYLON from 'babylonjs';
+import { StateProperty } from "../helpers/StateProperty";
 import { BatteryState } from "./BatteryState";
 
 export class DroneState {

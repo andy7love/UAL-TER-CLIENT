@@ -1,6 +1,7 @@
-import { Utils } from "helpers/Utils";
-import { WebRTCConnection } from "helpers/WebRTCConnection";
-import { ClientState } from "states/ClientState";
+import { Utils } from "../helpers/Utils";
+import { WebRTCConnection } from "../helpers/WebRTCConnection";
+import { ClientState } from "../states/ClientState";
+import * as BABYLON from 'babylonjs';
 
 export class Communication {
 	private state: ClientState;

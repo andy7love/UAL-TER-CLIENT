@@ -1,4 +1,4 @@
-/// <reference path="../../typings/globals/underscore/index.d.ts" />
+import * as BABYLON from 'babylonjs';
 
 interface RollPitchYaw {
     roll: number;

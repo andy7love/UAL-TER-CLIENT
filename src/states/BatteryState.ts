@@ -1,4 +1,4 @@
-import { StateProperty } from "helpers/StateProperty";
+import { StateProperty } from "../helpers/StateProperty";
 
 interface BatteryStateValue {
 	voltage: number,

@@ -1,4 +1,4 @@
-/// <reference path="../../bower_components/babylonjs/dist/babylon.2.4.d.ts" />
+import * as BABYLON from 'babylonjs';
 
 export class GraphicsEngine {
     private engine: BABYLON.Engine;

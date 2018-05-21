@@ -1,4 +1,4 @@
-import { ClientState } from "states/ClientState";
+import { ClientState } from "../states/ClientState";
 
 export class UserInput {
 	private state: ClientState;

@@ -1,6 +1,3 @@
-/// <reference path="../../typings/globals/socket.io-client/index.d.ts" />
-/// <reference path="../../typings/globals/webrtc/rtcpeerconnection/index.d.ts" />
-
 interface WebRTCConnectionSettings {
     events: {
         connected: () => void,
@@ -127,7 +124,7 @@ export class WebRTCConnection {
     private createPeerConnection(): void {
         try {
             this.peerConnection = new RTCPeerConnection(null);
-            this.peerConnection.onicecandidate = (event) => {
+            this.peerConnection.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
                 this.handleIceCandidate(event);
             };
             //pc.onaddstream = handleRemoteStreamAdded;
@@ -162,12 +159,12 @@ export class WebRTCConnection {
 
     private handleIncomingChannels(event: RTCDataChannelEvent) {
         let receiveChannel: RTCDataChannel = event.channel;
-        receiveChannel.onmessage = (event) => {
+        receiveChannel.onmessage = (event: MessageEvent) => {
             this.receiveMessage(event);
         };
     }
 
-    private receiveMessage(event: RTCMessageEvent) {
+    private receiveMessage(event: MessageEvent) {
         let data = event.data;
         this.settings.events.messageReceived(data);
     }
@@ -182,7 +179,7 @@ export class WebRTCConnection {
             this.channels.reliable.channel.readyState === 'open');
     }
 
-    private handleIceCandidate(event: RTCIceCandidateEvent) {
+    private handleIceCandidate(event: RTCPeerConnectionIceEvent) {
         if (event.candidate) {
             this.sendMessageToDrone({
                 type: 'candidate',

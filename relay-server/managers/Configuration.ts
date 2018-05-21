@@ -1,4 +1,3 @@
-/// <reference path="../../typings/globals/node/index.d.ts" />
 import { Utils } from '../helpers/Utils';
 
 interface ClientConfiguration { 

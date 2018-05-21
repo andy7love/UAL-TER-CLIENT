@@ -12,7 +12,7 @@ var chalk = require('chalk');
 var tsProject = ts.createProject('./tsconfig.json');
 var closeServer = null;
  
-gulp.task('clean', [], function () {
+gulp.task('clean', [], () => {
     return gulp.src([
             'build/**/*',
             '!build/iconfont/**'
@@ -20,7 +20,7 @@ gulp.task('clean', [], function () {
         .pipe(clean({ force: true }));
 });
 
-gulp.task('relay-server:build', [], function () {
+gulp.task('relay-server:build', [], () => {
     return gulp.src('relay-server/**/*.ts')
         .pipe(ts({
             "removeComments": true,
@@ -31,13 +31,13 @@ gulp.task('relay-server:build', [], function () {
         .pipe(gulp.dest('build/relay-server'));
 });
 
-gulp.task('sass', [], function () {
+gulp.task('sass', [], () => {
   return gulp.src('src/sass/app.scss')
     .pipe(sass().on('error', sass.logError))
     .pipe(gulp.dest('build'));
 });
  
-gulp.task('views', [], function buildHTML() {
+gulp.task('views', [], () => {
     return gulp.src('src/views/**/*.pug')
         .pipe(pug({
             client: true
@@ -48,7 +48,7 @@ gulp.task('views', [], function buildHTML() {
         .pipe(gulp.dest('build'))
 });
 
-gulp.task('scripts', [], function () {
+gulp.task('scripts', [], () => {
     var tsResult = tsProject.src()
         .pipe(tsProject());
 
@@ -57,7 +57,7 @@ gulp.task('scripts', [], function () {
         .pipe(gulp.dest('build'));
 });
 
-gulp.task('static', [], function () {
+gulp.task('static', [], () => {
     return gulp
         .src([
             'src/*.html',
@@ -66,7 +66,7 @@ gulp.task('static', [], function () {
         .pipe(copy('build', {prefix: 1}));
 });
 
-gulp.task('serve', [], function (cb) {
+gulp.task('serve', [], cb => {
     var express = require('express');
     var app = express();
     var port = 8000;
@@ -75,7 +75,7 @@ gulp.task('serve', [], function (cb) {
     app.use('/resources', express.static(__dirname + '/resources'));
     app.use('/vendor', express.static(__dirname + '/bower_components'));
 
-    var contentServer = app.listen(port, function() {
+    var contentServer = app.listen(port, () => {
         console.log("App listening on http://localhost:" + port + '/');
     });
 
@@ -83,10 +83,10 @@ gulp.task('serve', [], function (cb) {
         stdio: 'pipe',
         silent: true
     });
-    signalingServer.stdout.on('data', function(data) {
+    signalingServer.stdout.on('data', data => {
         console.log(chalk.blue("Signaling Server") + chalk.grey(' - ') + data);
     });
-    signalingServer.stderr.on('data', function(data) {
+    signalingServer.stderr.on('data', data => {
         console.log(chalk.blue("Signaling Server") + chalk.red("ERROR!") + chalk.grey(' - ') + data);
     });
 
@@ -94,34 +94,34 @@ gulp.task('serve', [], function (cb) {
         stdio: 'pipe',
         silent: true
     });
-    relayServer.stdout.on('data', function(data) {
+    relayServer.stdout.on('data', data => {
         console.log(chalk.cyan("Relay Server") + chalk.grey(' - ') + data);
     });
-    relayServer.stderr.on('data', function(data) {
+    relayServer.stderr.on('data', data => {
         console.log(chalk.cyan("Relay Server") + chalk.red("ERROR!") + chalk.grey(' - ') + data);
     });
 
-    closeServer = function() {
+    closeServer = () => {
         contentServer.close();
         console.log('Server closed');
     };
 });
 
-gulp.task('watch', [], function () {
+gulp.task('watch', [], () => {
     gulp.watch(['src/**/*.ts'], ['scripts']);
     gulp.watch(['src/sass/**/*.scss'], ['sass']);
     gulp.watch(['src/*.html'], ['static']);
     gulp.watch(['src/views/**/*.pug'], ['views']);
 });
 
-gulp.task('build', function(done) {
+gulp.task('build', done => {
     runSequence(
         'clean', 
         ['scripts', 'views', 'sass', 'relay-server:build', 'static'],
         done);
 });
 
-gulp.task('default', function(done) {
+gulp.task('default', done => {
     runSequence(
         'build',
         'watch',

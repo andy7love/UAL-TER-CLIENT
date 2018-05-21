@@ -1,4 +1,4 @@
-import { StateProperty } from "helpers/StateProperty";
+import { StateProperty } from "../helpers/StateProperty";
 
 export class UIState {
     public firstPersonCamera: StateProperty<boolean>;

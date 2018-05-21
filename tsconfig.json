@@ -3,18 +3,16 @@
 		"removeComments": true,
 		"noImplicitAny": false,
 		"sourceMap": true,
-		"baseUrl": "./bower_components",
+		"baseUrl": "./node_modules",
 		"outFile": "bundle.js",
-		"target": "es5",
-		"module": "amd"
+		"module": "commonjs",
+		"target": "es5"
   },
 	"include": [
   	"src/**/*",
 		"src/*"
   ],
 	"exclude": [
-			"node_modules",
-			"bower_components",
-			"typings"	
+			"./node_modules"
 	]
 }
