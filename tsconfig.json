@@ -1,18 +1,30 @@
 {
-  "compilerOptions": {
-		"removeComments": true,
-		"noImplicitAny": false,
+	"compilerOptions": {
+		"outDir": "./dist/",
 		"sourceMap": true,
-		"baseUrl": "./node_modules",
-		"outFile": "bundle.js",
+		"noImplicitAny": true,
+		"suppressImplicitAnyIndexErrors": true,
+		"alwaysStrict": true,
+		"noUnusedLocals": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
 		"module": "commonjs",
-		"target": "es5"
-  },
+		"target": "es5",
+		"lib": [
+			"es5",
+			"es6",
+			"dom"
+		],
+		"baseUrl": ".",
+		"paths": {
+			"*": [
+				"./typings/*",
+				"./node_modules/@typeless/*",
+				"./src/*"
+			]
+		}
+	},
 	"include": [
-  	"src/**/*",
-		"src/*"
-  ],
-	"exclude": [
-			"./node_modules"
+		"./src/**/*"
 	]
 }

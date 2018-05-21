@@ -1,14 +1,14 @@
-import { StateProperty } from "../helpers/StateProperty";
+import { StateProperty } from '../helpers/StateProperty';
 
-interface BatteryStateValue {
-	voltage: number,
-	percentage: number,
-	dischargeRate: number,
-	autonomy: number
+interface IBatteryStateValue {
+	voltage: number;
+	percentage: number;
+	dischargeRate: number;
+	autonomy: number;
 }
 
-export class BatteryState extends StateProperty<BatteryStateValue> {
-	constructor () {
+export class BatteryState extends StateProperty<IBatteryStateValue> {
+	constructor() {
 		super({
 			voltage: 0,
 			percentage: 0,

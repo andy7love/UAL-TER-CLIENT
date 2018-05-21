@@ -1,14 +1,14 @@
-import { StateProperty } from "../helpers/StateProperty";
+import { StateProperty } from '../helpers/StateProperty';
 
-interface JoystickStateValue {
+interface IJoystickStateValue {
 	yaw: number;
 	pitch: number;
 	roll: number;
 	throttle: number;
 }
 
-export class JoystickState extends StateProperty<JoystickStateValue> {
-	constructor () {
+export class JoystickState extends StateProperty<IJoystickStateValue> {
+	constructor() {
 		super({
 			yaw: 0,
 			pitch: 0,
