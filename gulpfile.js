@@ -11,11 +11,10 @@ var fork = require('child_process').fork;
 var chalk = require('chalk');
 var tsProject = ts.createProject('./tsconfig.json');
 var closeServer = null;
- 
+
 gulp.task('clean', [], () => {
     return gulp.src([
             'build/**/*',
-            '!build/iconfont/**'
         ], {read: false})
         .pipe(clean({ force: true }));
 });
@@ -31,54 +30,7 @@ gulp.task('relay-server:build', [], () => {
         .pipe(gulp.dest('build/relay-server'));
 });
 
-gulp.task('sass', [], () => {
-  return gulp.src('src/sass/app.scss')
-    .pipe(sass().on('error', sass.logError))
-    .pipe(gulp.dest('build'));
-});
- 
-gulp.task('views', [], () => {
-    return gulp.src('src/views/**/*.pug')
-        .pipe(pug({
-            client: true
-        }))
-        .pipe(pugConcat('templates.js', {
-            // nothing...      
-        }))
-        .pipe(gulp.dest('build'))
-});
-
-gulp.task('scripts', [], () => {
-    var tsResult = tsProject.src()
-        .pipe(tsProject());
-
-    return tsResult.js
-        .pipe(uglify())
-        .pipe(gulp.dest('build'));
-});
-
-gulp.task('static', [], () => {
-    return gulp
-        .src([
-            'src/*.html',
-            'src/iconfont/*.*'
-        ])
-        .pipe(copy('build', {prefix: 1}));
-});
-
 gulp.task('serve', [], cb => {
-    var express = require('express');
-    var app = express();
-    var port = 8000;
-
-    app.use(express.static(__dirname + '/build'));
-    app.use('/resources', express.static(__dirname + '/resources'));
-    app.use('/vendor', express.static(__dirname + '/bower_components'));
-
-    var contentServer = app.listen(port, () => {
-        console.log("App listening on http://localhost:" + port + '/');
-    });
-
     var signalingServer = fork('./signaling-server.js', [], {
         stdio: 'pipe',
         silent: true
@@ -102,29 +54,15 @@ gulp.task('serve', [], cb => {
     });
 
     closeServer = () => {
-        contentServer.close();
+		relayServer.kill();
+		signalingServer.kill();
         console.log('Server closed');
     };
 });
 
-gulp.task('watch', [], () => {
-    gulp.watch(['src/**/*.ts'], ['scripts']);
-    gulp.watch(['src/sass/**/*.scss'], ['sass']);
-    gulp.watch(['src/*.html'], ['static']);
-    gulp.watch(['src/views/**/*.pug'], ['views']);
-});
-
-gulp.task('build', done => {
-    runSequence(
-        'clean', 
-        ['scripts', 'views', 'sass', 'relay-server:build', 'static'],
-        done);
-});
-
 gulp.task('default', done => {
     runSequence(
-        'build',
-        'watch',
+        'relay-server:build',
         'serve',
         done);
 });

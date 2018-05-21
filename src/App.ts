@@ -5,6 +5,9 @@ import { UserInput } from './modules/UserInput';
 import { GUIPanel } from './modules/GUIPanel';
 import { HUD } from './modules/HUD';
 import { Communication } from './modules/Communication';
+require('../node_modules/dat.gui/build/dat.gui.css');
+require('../node_modules/material-icons/iconfont/material-icons.scss');
+require('./sass/app.scss');
 
 export class App {
 	public clientState: ClientState;

@@ -71,10 +71,10 @@ export class GraphicsScene {
 	}
 
 	public setSkybox(): void {
-		const skybox = BABYLON.Mesh.CreateBox('skyBox', 100000.0, this.scene);
+		const skybox = BABYLON.Mesh.CreateBox('skyBox', 1000.0, this.scene);
 		const skyboxMaterial = new BABYLON.StandardMaterial('skyBox', this.scene);
 		skyboxMaterial.backFaceCulling = false;
-		skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture('resources/night', this.scene);
+		skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture('textures/night', this.scene);
 		skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
 		skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
 		skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
@@ -87,9 +87,9 @@ export class GraphicsScene {
 		this.ground = BABYLON.Mesh.CreateGround('ground', 1000, 1000, 1, this.scene, false);
 		const groundMaterial = new BABYLON.StandardMaterial('ground', this.scene);
 		if (this.engine.getCaps().s3tc) {
-			groundMaterial.diffuseTexture = new BABYLON.Texture('resources/grass.dds', this.scene);
+			groundMaterial.diffuseTexture = new BABYLON.Texture('textures/grass.dds', this.scene);
 		} else {
-			groundMaterial.diffuseTexture = new BABYLON.Texture('grass.jpg', this.scene);
+			groundMaterial.diffuseTexture = new BABYLON.Texture('textures/grass.jpg', this.scene);
 		}
 
 		(groundMaterial.diffuseTexture as any).uScale = 50;
@@ -100,7 +100,7 @@ export class GraphicsScene {
 	}
 
 	public setDrone(): void {
-		const droneTask = this.loader.addMeshTask('drone', '', 'resources/drone2/', 'MQ-27.obj');
+		const droneTask = this.loader.addMeshTask('drone', '', 'drone2/', 'MQ-27.obj');
 		droneTask.onSuccess = (t: any) => {
 			// Remove rotors.
 			// last 4 meshes are the rotors!.
@@ -127,6 +127,7 @@ export class GraphicsScene {
 
 			// Specific node for drone.
 			this.drone = new BABYLON.Mesh('drone-node', this.scene);
+			console.log('SCENE READY!');
 			parent.parent = this.drone;
 
 			this.firstPersonCamera.parent = this.drone;
@@ -171,6 +172,10 @@ export class GraphicsScene {
 	}
 
 	public update(): void {
+		if (!this.drone) {
+			return;
+		}
+
 		const position = this.state.simulation.position.getValue();
 		const orientation = this.state.simulation.orientation.getValue();
 

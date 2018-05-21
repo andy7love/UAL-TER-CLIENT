@@ -1,7 +1,8 @@
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const TSLintPlugin = require('tslint-webpack-plugin');
 const path = require('path');
-const distPath = path.join(__dirname, '../dist');
+const distPath = path.join(__dirname, './build');
 
 module.exports = {
 	devtool: 'source-map',
@@ -11,7 +12,8 @@ module.exports = {
 	],
 	output: {
 		path: distPath,
-		filename: "[name].js"
+		publicPath: '/',
+		filename: "bundle.js"
 	},
 	resolve: {
 		extensions: [".ts", ".js", ".json"],
@@ -20,11 +22,6 @@ module.exports = {
 			path.resolve('./node_modules')
 		]
 	},
-	plugins: [
-		new CopyWebpackPlugin([
-			{ from: './src/index.html', to: distPath }
-		])
-	],
 	module: {
 		rules: [
 			// Typescript
@@ -66,8 +63,21 @@ module.exports = {
 		]
 	},
 	plugins: [
+		new CopyWebpackPlugin([
+			{ from: './src/index.html', to: distPath }
+		]),
+		new TSLintPlugin({
+			files: ['./src/**/*.ts']
+		}),
+		new webpack.NamedModulesPlugin(),
 		new webpack.DefinePlugin({
-			DEBUG: true
+			DEBUG: JSON.stringify(true)
 		})
-	]
+	],
+	devServer: {
+		contentBase: path.join(__dirname, "resources"),
+		host: "0.0.0.0",
+		index: 'index.html',
+		port: 8000
+	}
 };

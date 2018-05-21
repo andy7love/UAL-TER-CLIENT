@@ -1,3 +1,5 @@
+import * as io from 'socket.io-client';
+
 interface IWebRTCConnectionSettings {
 	events: {
 		connected: () => void,
