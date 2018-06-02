@@ -4,7 +4,7 @@
   "description": "Unmanned Aircraft Life - Terminal Client",
   "private": true,
   "scripts": {
-    "start": "webpack-dev-server --config webpack.config.js",
+    "start": "npm run lint && webpack-dev-server --config webpack.config.js",
     "relay": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "tslint -p tslint.json"
