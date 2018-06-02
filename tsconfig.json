@@ -1,20 +1,35 @@
 {
-  "compilerOptions": {
-		"removeComments": true,
-		"noImplicitAny": false,
+	"compilerOptions": {
+		"outDir": "./build/",
 		"sourceMap": true,
-		"baseUrl": "./bower_components",
-		"outFile": "bundle.js",
+		"noImplicitAny": true,
+		"suppressImplicitAnyIndexErrors": true,
+		"alwaysStrict": true,
+		"noUnusedLocals": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"module": "commonjs",
 		"target": "es5",
-		"module": "amd"
-  },
+		"lib": [
+			"es5",
+			"es6",
+			"dom"
+		],
+		"baseUrl": ".",
+		"paths": {
+			"*": [
+				"./typings/*",
+				"./node_modules/@typeless/*",
+				"./src/*"
+			]
+		}
+	},
+    "types": [
+        "babylonjs",
+		"babylonjs-materials",
+		"babylonjs-loaders"
+    ],
 	"include": [
-  	"src/**/*",
-		"src/*"
-  ],
-	"exclude": [
-			"node_modules",
-			"bower_components",
-			"typings"	
+		"./src/**/*"
 	]
 }

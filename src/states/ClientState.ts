@@ -1,8 +1,8 @@
-import { JoystickState } from "./JoystickState";
-import { DroneState } from "./DroneState";
-import { SimulationState } from "./SimulationState";
-import { CommunicationState } from "./CommunicationState";
-import { UIState } from "./UIState";
+import { JoystickState } from './JoystickState';
+import { DroneState } from './DroneState';
+import { SimulationState } from './SimulationState';
+import { CommunicationState } from './CommunicationState';
+import { UIState } from './UIState';
 
 export class ClientState {
 	public joystick: JoystickState;
