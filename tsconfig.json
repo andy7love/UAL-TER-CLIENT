@@ -24,6 +24,11 @@
 			]
 		}
 	},
+    "types": [
+        "babylonjs",
+		"babylonjs-materials",
+		"babylonjs-loaders"
+    ],
 	"include": [
 		"./src/**/*"
 	]

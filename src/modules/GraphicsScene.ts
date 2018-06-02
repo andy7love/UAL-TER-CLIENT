@@ -1,5 +1,7 @@
-import * as BABYLON from 'babylonjs';
 import { ClientState } from '../states/ClientState';
+import * as BABYLON from 'babylonjs';
+import 'babylonjs-materials';
+import 'babylonjs-loaders';
 
 export class GraphicsScene {
 	private engine: BABYLON.Engine;
@@ -101,6 +103,9 @@ export class GraphicsScene {
 
 	public setDrone(): void {
 		const droneTask = this.loader.addMeshTask('drone', '', 'drone2/', 'MQ-27.obj');
+		droneTask.onError = (t, message) => {
+			console.log('error loading mesh:' + message);
+		};
 		droneTask.onSuccess = (t: any) => {
 			// Remove rotors.
 			// last 4 meshes are the rotors!.

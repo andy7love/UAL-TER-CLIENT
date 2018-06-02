@@ -20,7 +20,10 @@
   },
   "homepage": "https://github.com/andy7love/UAL-TER-CLIENT#readme",
   "dependencies": {
+    "babylon-objloader": "0.0.4",
     "babylonjs": "^3.2.0",
+    "babylonjs-loaders": "^3.2.0",
+    "babylonjs-materials": "^3.2.0",
     "baconjs": "^2.0.7",
     "cannon": "^0.6.2",
     "chalk": "^1.1.3",
