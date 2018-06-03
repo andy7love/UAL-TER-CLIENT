@@ -2,6 +2,7 @@ import { Utils } from '../helpers/Utils';
 import { WebRTCConnection } from '../helpers/WebRTCConnection';
 import { ClientState } from '../states/ClientState';
 import * as BABYLON from 'babylonjs';
+import DronePosition from 'ual-ter-protocol';
 
 export class Communication {
 	private state: ClientState;
@@ -14,6 +15,8 @@ export class Communication {
 	}
 
 	private initConnection() {
+		const data: DronePosition = new DronePosition();
+		console.log('Protocol Library Test', data.position);
 		this.connection = new WebRTCConnection({
 			events: {
 				connected: () => {

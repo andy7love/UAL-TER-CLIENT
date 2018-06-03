@@ -1,11 +1,13 @@
 {
   "name": "ual-ter-client",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Unmanned Aircraft Life - Terminal Client",
   "private": true,
   "scripts": {
-    "start": "npm run lint && webpack-dev-server --config webpack.config.js",
-    "relay": "gulp",
+	"start": "webpack-dev-server --config webpack.config.js",
+	"relay": "gulp",
+	"link-local-lib": "rimraf node_modules/ual-ter-protocol && npm link ual-ter-protocol",
+	"dev": "npm run link-local-lib && npm run lint && npm start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "tslint -p tslint.json"
   },
@@ -46,6 +48,7 @@
     "socket.io": "^1.7.2",
     "socket.io-client": "^1.7.2",
     "typings": "^2.0.0",
+    "ual-ter-protocol": "git+https://github.com/andy7love/UAL-TER-Protocol.git",
     "underscore": "^1.8.3",
     "wrtc": "0.0.63"
   },
@@ -66,6 +69,7 @@
     "file-loader": "^1.1.11",
     "html-webpack-template-pug": "^1.1.1",
     "pug-loader": "^2.4.0",
+    "rimraf": "^2.6.2",
     "sass-loader": "^7.0.1",
     "source-map-loader": "^0.2.3",
     "style-loader": "^0.21.0",
