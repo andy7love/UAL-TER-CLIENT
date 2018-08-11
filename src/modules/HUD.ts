@@ -1,5 +1,5 @@
 import { ClientState } from '../states/ClientState';
-import { Utils } from '../helpers/Utils';
+import { Utils } from 'ual-ter-protocol';
 import * as $ from 'jquery';
 const hudTemplate = require('../views/hud/hud.pug');
 

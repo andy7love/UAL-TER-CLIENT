@@ -1,13 +1,7 @@
 import { StateProperty } from '../helpers/StateProperty';
+import { IJoystickState } from 'ual-ter-protocol';
 
-interface IJoystickStateValue {
-	yaw: number;
-	pitch: number;
-	roll: number;
-	throttle: number;
-}
-
-export class JoystickState extends StateProperty<IJoystickStateValue> {
+export class JoystickState extends StateProperty<IJoystickState> {
 	constructor() {
 		super({
 			yaw: 0,

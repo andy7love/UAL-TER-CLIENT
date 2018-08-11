@@ -4,10 +4,10 @@
   "description": "Unmanned Aircraft Life - Terminal Client",
   "private": true,
   "scripts": {
-	"start": "webpack-dev-server --config webpack.config.js",
-	"relay": "gulp",
-	"link-local-lib": "rimraf node_modules/ual-ter-protocol && npm link ual-ter-protocol",
-	"dev": "npm run link-local-lib && npm run lint && npm start",
+    "start": "webpack-dev-server --config webpack.config.js",
+    "relay": "gulp",
+    "link-local-lib": "rimraf node_modules/ual-ter-protocol && npm link ual-ter-protocol",
+    "dev": "npm run link-local-lib && npm run lint && npm start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "tslint -p tslint.json"
   },
