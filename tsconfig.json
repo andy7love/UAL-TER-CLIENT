@@ -21,7 +21,9 @@
 				"./typings/*",
 				"./node_modules/@typeless/*",
 				"./src/*"
-			]
+			],
+			"babylonjs": ["node_modules/babylonjs"],
+			"babylonjs/*": ["node_modules/babylonjs/*"]
 		}
 	},
     "types": [
