@@ -6,7 +6,7 @@ import {
 	ClientRealTimeControlParser,
 	IClientRealTimeControl,
 	Utils
-} from 'ual-ter-protocol';
+} from 'ual-ter-protocol/src';
 export class Communication {
 	private state: ClientState;
 	private connection: WebRTCConnection;
